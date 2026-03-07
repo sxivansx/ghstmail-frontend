@@ -34,81 +34,122 @@ export default function FiltersPage() {
   }
 
   if (loading) {
-    return <div className="text-gray-400 py-12 text-center">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-6 h-6 border-2 border-phantom-400/30 border-t-phantom-400 rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Filter Rules</h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Block or allow emails from specific domains.
+        <h1 className="font-display font-bold text-2xl tracking-tight">Filters</h1>
+        <p className="text-void-400 text-sm mt-1">
+          Block or allow emails from specific domains
         </p>
       </div>
 
-      <form onSubmit={handleCreate} className="flex gap-3 items-end flex-wrap">
-        <div>
-          <label className="block text-xs text-gray-400 mb-1">Domain</label>
-          <input
-            type="text"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            placeholder="e.g. spam.com"
-            required
-            className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-ghst-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-400 mb-1">Action</label>
-          <select
-            value={action}
-            onChange={(e) => setAction(e.target.value)}
-            className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-ghst-500"
+      {/* Create form */}
+      <form onSubmit={handleCreate} className="p-5 rounded-2xl border border-void-600/30 bg-void-800/20 backdrop-blur-sm">
+        <div className="flex gap-3 items-end flex-wrap">
+          <div className="flex-1 min-w-[180px]">
+            <label className="block text-xs font-medium text-void-300 mb-1.5 ml-0.5">Domain</label>
+            <input
+              type="text"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="e.g. spam.com"
+              required
+              className="w-full px-3.5 py-2.5 bg-void-800/60 border border-void-600/40 rounded-xl text-sm text-void-50 placeholder:text-void-500 focus:outline-none focus:border-phantom-400/50 transition-all"
+            />
+          </div>
+          <div className="w-32">
+            <label className="block text-xs font-medium text-void-300 mb-1.5 ml-0.5">Action</label>
+            <select
+              value={action}
+              onChange={(e) => setAction(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-void-800/60 border border-void-600/40 rounded-xl text-sm text-void-50 focus:outline-none focus:border-phantom-400/50 transition-all appearance-none cursor-pointer"
+            >
+              <option value="block">Block</option>
+              <option value="allow">Allow</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="px-5 py-2.5 bg-phantom-400 text-void-950 rounded-xl text-sm font-semibold hover:bg-phantom-300 transition-all glow-green flex items-center gap-2"
           >
-            <option value="block">Block</option>
-            <option value="allow">Allow</option>
-          </select>
+            <PlusIcon className="w-4 h-4" />
+            Add Rule
+          </button>
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-ghst-600 hover:bg-ghst-700 rounded-lg text-sm font-medium transition"
-        >
-          + Add Rule
-        </button>
       </form>
 
+      {/* Filter list */}
       <div className="space-y-3">
         {filters.length === 0 && (
-          <p className="text-gray-500 text-sm py-8 text-center">
-            No filter rules configured.
-          </p>
+          <div className="text-center py-16">
+            <div className="w-12 h-12 rounded-2xl bg-void-700/30 border border-void-600/30 flex items-center justify-center mx-auto mb-4">
+              <FilterIcon className="w-6 h-6 text-void-400" />
+            </div>
+            <p className="text-void-400 text-sm">No filter rules</p>
+            <p className="text-void-500 text-xs mt-1">Add rules above to block unwanted domains</p>
+          </div>
         )}
         {filters.map((f) => (
           <div
             key={f.id}
-            className="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-void-600/30 bg-void-800/20 border-glow"
           >
             <div className="flex items-center gap-3">
               <span
-                className={`text-xs px-2 py-0.5 rounded ${
+                className={`text-xs px-2.5 py-1 rounded-lg font-semibold uppercase tracking-wider ${
                   f.action === "block"
-                    ? "bg-red-900/50 text-red-400"
-                    : "bg-green-900/50 text-green-400"
+                    ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                    : "bg-phantom-400/10 text-phantom-400 border border-phantom-400/20"
                 }`}
               >
-                {f.action.toUpperCase()}
+                {f.action}
               </span>
-              <span className="font-mono text-sm">{f.domain}</span>
+              <span className="font-mono text-sm text-void-100">{f.domain}</span>
             </div>
             <button
               onClick={() => handleDelete(f.id)}
-              className="text-xs px-3 py-1 rounded-full border border-gray-600 text-gray-400 hover:text-red-400 hover:border-red-800 transition"
+              className="p-1.5 rounded-lg text-void-500 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+              title="Remove rule"
             >
-              Remove
+              <TrashIcon className="w-4 h-4" />
             </button>
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+function PlusIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+}
+
+function FilterIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+    </svg>
   );
 }

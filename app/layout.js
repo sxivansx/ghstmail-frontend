@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "GhstMail — Email Alias Dashboard",
-  description: "Manage your email aliases and privacy settings",
+  title: "GhstMail — Your email, invisible.",
+  description: "Generate disposable email aliases that forward to your inbox. Reply anonymously. Block spam. Stay invisible.",
 };
 
 export default function RootLayout({ children }) {
