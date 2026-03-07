@@ -79,50 +79,54 @@ export default function FiltersPage() {
 
   return (
     <div className="space-y-8">
+      {/* Header with Badge */}
       <div>
+        <Badge variant="secondary" className="mb-2">Filter Rules</Badge>
         <h1 className="font-display font-bold text-2xl tracking-tight">Filters</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Block or allow emails from specific domains
         </p>
       </div>
 
-      {/* Create form */}
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardContent className="pt-6">
-          <form onSubmit={handleCreate} className="flex gap-3 items-end flex-wrap">
-            <div className="flex-1 min-w-[180px] space-y-2">
-              <Label>Domain</Label>
-              <Input
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                placeholder="e.g. spam.com"
-                required
-              />
-            </div>
-            <div className="w-36 space-y-2">
-              <Label>Action</Label>
-              <Select value={action} onValueChange={setAction}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="block">Block</SelectItem>
-                  <SelectItem value="allow">Allow</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" className="glow-primary">
-              <PlusIcon className="w-4 h-4" />
-              Add Rule
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      {/* Create form — border-y wrapper */}
+      <div className="border-y border-border/50 py-5">
+        <Card className="bg-card/50 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <form onSubmit={handleCreate} className="flex gap-3 items-end flex-wrap">
+              <div className="flex-1 min-w-[180px] space-y-2">
+                <Label>Domain</Label>
+                <Input
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  placeholder="e.g. spam.com"
+                  required
+                />
+              </div>
+              <div className="w-36 space-y-2">
+                <Label>Action</Label>
+                <Select value={action} onValueChange={setAction}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="block">Block</SelectItem>
+                    <SelectItem value="allow">Allow</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button type="submit" className="glow-primary">
+                <PlusIcon className="w-4 h-4" />
+                Add Rule
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Filter list */}
       <div className="space-y-3">
         {filters.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-16 border border-border rounded-2xl bg-card/50">
             <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
               <FilterIcon className="w-6 h-6 text-muted-foreground" />
             </div>

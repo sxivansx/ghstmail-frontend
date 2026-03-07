@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-/* ─── Icons ─────────────────────────────────────── */
+/* --- Icons --- */
 
 function PlusIcon({ className }) {
   return (
@@ -78,7 +78,7 @@ function XIcon({ className }) {
   );
 }
 
-/* ─── Expiration bar ────────────────────────────── */
+/* --- Expiration bar --- */
 
 function ExpirationBar({ expiresAt, createdAt }) {
   const [now, setNow] = useState(Date.now());
@@ -124,7 +124,7 @@ function ExpirationBar({ expiresAt, createdAt }) {
   );
 }
 
-/* ─── Create modal ──────────────────────────────── */
+/* --- Create modal --- */
 
 function CreateModal({ open, onClose, onCreated }) {
   const [label, setLabel] = useState("");
@@ -156,7 +156,7 @@ function CreateModal({ open, onClose, onCreated }) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-6 shadow-2xl">
+      <div className="relative w-full max-w-md mx-4 rounded-2xl bg-card border border-border p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-lg">New Alias</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -202,14 +202,14 @@ function CreateModal({ open, onClose, onCreated }) {
   );
 }
 
-/* ─── Alias card ────────────────────────────────── */
+/* --- Alias card --- */
 
 function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
   const a = alias;
 
   return (
     <div
-      className={`group relative rounded-2xl bg-[#161616] border border-[#232323] hover:border-[#333] transition-all duration-200 flex flex-col ${
+      className={`group relative rounded-2xl bg-card border border-border hover:border-primary/20 transition-all duration-200 flex flex-col ${
         !a.is_active ? "opacity-45" : ""
       }`}
     >
@@ -262,7 +262,7 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
           className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
             copied === a.id
               ? "bg-primary/15 text-primary"
-              : "bg-[#1e1e1e] hover:bg-[#252525] text-muted-foreground hover:text-foreground border border-[#2a2a2a]"
+              : "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground border border-border"
           }`}
         >
           {copied === a.id ? (
@@ -280,13 +280,13 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center gap-0 border-t border-[#232323]">
+      <div className="flex items-center gap-0 border-t border-border">
         <div className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] text-muted-foreground">
           <InboxIcon className="w-3.5 h-3.5" />
           <span className="font-medium text-foreground/80">{a.emails_received}</span>
           <span className="hidden sm:inline">received</span>
         </div>
-        <div className="w-px h-4 bg-[#232323]" />
+        <div className="w-px h-4 bg-border" />
         <div className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] text-muted-foreground">
           <SendIcon className="w-3.5 h-3.5" />
           <span className="font-medium text-foreground/80">{a.emails_forwarded}</span>
@@ -296,7 +296,7 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
 
       {/* Expiration bar */}
       {a.expires_at && (
-        <div className="border-t border-[#232323]">
+        <div className="border-t border-border">
           <ExpirationBar expiresAt={a.expires_at} createdAt={a.created_at} />
         </div>
       )}
@@ -304,7 +304,7 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
   );
 }
 
-/* ─── Main page ─────────────────────────────────── */
+/* --- Main page --- */
 
 export default function DashboardPage() {
   const [aliases, setAliases] = useState([]);
@@ -362,6 +362,7 @@ export default function DashboardPage() {
       {/* Header row */}
       <div className="flex items-center justify-between mb-8">
         <div>
+          <Badge variant="secondary" className="mb-2">Your Aliases</Badge>
           <h1 className="font-display font-bold text-2xl tracking-tight">Aliases</h1>
           <div className="flex items-center gap-4 mt-1.5">
             <span className="text-xs text-muted-foreground">
@@ -386,8 +387,8 @@ export default function DashboardPage() {
 
       {/* Card grid */}
       {aliases.length === 0 ? (
-        <div className="text-center py-24">
-          <div className="w-14 h-14 rounded-2xl bg-[#161616] border border-[#232323] flex items-center justify-center mx-auto mb-4">
+        <div className="text-center py-24 border border-border rounded-2xl bg-card/50">
+          <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto mb-4">
             <MailIcon className="w-7 h-7 text-muted-foreground/50" />
           </div>
           <p className="text-muted-foreground text-sm">No aliases yet</p>
