@@ -5,12 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 /* --- Icons --- */
 
@@ -209,30 +203,35 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
 
   return (
     <div
-      className={`group relative rounded-2xl bg-card border border-border hover:border-primary/20 transition-all duration-200 flex flex-col ${
-        !a.is_active ? "opacity-45" : ""
+      className={`group relative rounded-2xl bg-card border transition-all duration-200 flex flex-col ${
+        a.is_active
+          ? "border-border hover:border-primary/20"
+          : "border-red-500/15 hover:border-red-500/25"
       }`}
     >
       {/* Top section: toggle + actions */}
       <div className="flex items-center justify-between px-4 pt-4 pb-0">
-        <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Switch
-                  checked={a.is_active}
-                  onCheckedChange={() => onToggle(a)}
-                />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              {a.is_active ? "Deactivate" : "Activate"}
-            </TooltipContent>
-          </Tooltip>
-          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-            {a.is_active ? "Active" : "Paused"}
+        <button
+          onClick={() => onToggle(a)}
+          className="relative flex items-center h-8 rounded-lg bg-muted border border-border overflow-hidden cursor-pointer"
+        >
+          <span className={`relative z-10 px-3 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+            a.is_active ? "text-emerald-950" : "text-muted-foreground"
+          }`}>
+            On
           </span>
-        </div>
+          <span className={`relative z-10 px-3 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+            !a.is_active ? "text-red-950" : "text-muted-foreground"
+          }`}>
+            Off
+          </span>
+          {/* Sliding highlight */}
+          <span className={`absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] rounded-md transition-all duration-200 ${
+            a.is_active
+              ? "left-0.5 bg-emerald-500"
+              : "left-[calc(50%+2px)] bg-red-500"
+          }`} />
+        </button>
         <Button
           variant="ghost"
           size="icon-sm"
