@@ -109,7 +109,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Main content inside border-x */}
         <div className="border-x border-border/50 mt-2">
-          <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+          <main role="main" className="max-w-6xl mx-auto px-6 py-8">{children}</main>
         </div>
       </div>
     </div>

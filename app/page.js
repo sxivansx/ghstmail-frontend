@@ -57,7 +57,7 @@ const features = [
       </svg>
     ),
     title: "Instant Aliases",
-    desc: "Generate unique email addresses in one click. Each alias forwards directly to your real inbox.",
+    desc: "One click, new address. Use it anywhere — signups, newsletters, trials. Emails land in your real inbox.",
   },
   {
     icon: (
@@ -67,7 +67,7 @@ const features = [
       </svg>
     ),
     title: "Anonymous Replies",
-    desc: "Reply to forwarded emails without exposing your real address. Your identity stays hidden.",
+    desc: "Hit reply like normal. The sender sees only your alias — your real email is never revealed.",
   },
   {
     icon: (
@@ -76,7 +76,17 @@ const features = [
       </svg>
     ),
     title: "Smart Filters",
-    desc: "Block unwanted senders by domain. Control exactly what reaches your inbox.",
+    desc: "Getting spam from a domain? Block it in one click. You control exactly what reaches your inbox.",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+    title: "Self-Destructing Aliases",
+    desc: "Need an address for just a day? Set a timer and it expires on its own. No cleanup required.",
   },
 ];
 
@@ -133,6 +143,7 @@ export default function LandingPage() {
         {/* Hatching divider after header */}
         <HatchingDivider className="h-6" />
 
+        <main>
         {/* Hero — inside border-x */}
         <div className="border-x border-border/50">
           <section className="pt-40 pb-16 px-6">
@@ -150,8 +161,12 @@ export default function LandingPage() {
               </h1>
 
               <p className="opacity-0 animate-fade-up-delay-2 mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-                Generate disposable aliases that forward to your inbox.
-                Reply without revealing who you are. Block what you don&apos;t want.
+                Generate disposable email aliases that forward to your real inbox.
+                Reply anonymously. Block unwanted senders. Your real address stays hidden.
+              </p>
+
+              <p className="opacity-0 animate-fade-up-delay-2 mt-4 text-sm text-foreground/60">
+                Free forever &middot; No credit card &middot; Set up in seconds
               </p>
 
               <div className="opacity-0 animate-fade-up-delay-3 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -164,6 +179,21 @@ export default function LandingPage() {
                 <Button variant="outline" size="lg" className="text-base px-8 h-12" asChild>
                   <Link href="/login">I have an account</Link>
                 </Button>
+              </div>
+
+              {/* Chrome Extension pill */}
+              <div className="opacity-0 animate-fade-up-delay-3 mt-6">
+                <a
+                  href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-primary/25 bg-primary/[0.08] hover:bg-primary/15 hover:border-primary/40 text-sm text-foreground/80 hover:text-foreground transition-all group"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/chrome.svg" alt="Chrome" className="w-[18px] h-[18px]" />
+                  Get the Chrome extension
+                  <ArrowIcon />
+                </a>
               </div>
             </div>
           </section>
@@ -179,7 +209,7 @@ export default function LandingPage() {
               <div className="text-center mb-16">
                 <Badge variant="secondary">How It Works</Badge>
                 <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  How it works
+                  Private email in three steps
                 </h2>
                 <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
                   Three steps to complete email privacy. No complex setup.
@@ -187,17 +217,23 @@ export default function LandingPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { step: "01", title: "Generate", desc: "Create a unique alias address in one click from the dashboard or Chrome extension." },
-                  { step: "02", title: "Receive", desc: "Emails sent to your alias are forwarded to your real inbox. Sender sees only the alias." },
-                  { step: "03", title: "Reply", desc: "Hit reply as usual. Your response is sent from the alias — your real email stays hidden." },
+                  { step: "01", title: "Generate", desc: "Create a unique alias address in one click from the dashboard or Chrome extension.", hasExtLink: true },
+                  { step: "02", title: "Receive", desc: "Someone emails your alias — it lands in your real inbox instantly. They never see your real address." },
+                  { step: "03", title: "Reply", desc: "Hit reply like normal. Your response goes out from the alias. Two-way conversation, zero exposure." },
                 ].map((item) => (
-                  <Card key={item.step} className="relative p-6 border-glow group bg-card/50 backdrop-blur-sm">
+                  <Card key={item.step} className="relative p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
                     <span className="font-display font-extrabold text-5xl text-primary/10 absolute top-4 right-5 group-hover:text-primary/20 transition-colors">
                       {item.step}
                     </span>
                     <div className="relative">
                       <h3 className="font-display font-bold text-xl mb-2">{item.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {item.hasExtLink
+                          ? <>Create a unique alias address in one click from the dashboard or{" "}
+                              <a href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary">Chrome extension</a>.
+                            </>
+                          : item.desc}
+                      </p>
                     </div>
                   </Card>
                 ))}
@@ -216,20 +252,79 @@ export default function LandingPage() {
               <div className="text-center mb-12">
                 <Badge variant="secondary">Features</Badge>
                 <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  Everything you need
+                  Privacy without compromises
                 </h2>
                 <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
-                  Built for privacy without compromising usability.
+                  Everything you need to keep your real email hidden.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((f) => (
-                  <Card key={f.title} className="p-6 border-glow group bg-card/50 backdrop-blur-sm">
+                  <Card key={f.title} className="p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/15 transition-colors">
                       {f.icon}
                     </div>
                     <h3 className="font-display font-bold text-lg mb-2">{f.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Hatching divider */}
+        <HatchingDivider />
+
+        {/* Security / Trust section */}
+        <div className="border-x border-border/50">
+          <section className="py-20 px-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <Badge variant="secondary">Security</Badge>
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
+                  Your data, protected
+                </h2>
+                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
+                  Your emails pass through — never stored, never read, never tracked.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
+                      </svg>
+                    ),
+                    title: "Zero email storage",
+                    desc: "Your emails pass through our servers and are immediately forwarded. Nothing is saved, logged, or read.",
+                  },
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    ),
+                    title: "Encrypted by default",
+                    desc: "Bcrypt-hashed passwords, TLS on every connection, and DKIM-signed forwarding. Security isn\u2019t optional.",
+                  },
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                      </svg>
+                    ),
+                    title: "No tracking. Period.",
+                    desc: "Zero analytics. Zero cookies. Zero telemetry. We have no idea what you do online — and we want to keep it that way.",
+                  },
+                ].map((item) => (
+                  <Card key={item.title} className="p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/15 transition-colors">
+                      {item.icon}
+                    </div>
+                    <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
                   </Card>
                 ))}
               </div>
@@ -256,7 +351,7 @@ export default function LandingPage() {
               <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
                 Ready to go <span className="text-primary">invisible</span>?
               </h2>
-              <p className="mt-4 text-muted-foreground text-base">Free to use. No credit card. Takes 10 seconds.</p>
+              <p className="mt-4 text-muted-foreground text-base">Create your first alias in under a minute. No credit card needed.</p>
               <Button size="lg" className="mt-8 glow-primary-strong text-base px-8 h-12" asChild>
                 <Link href="/register">
                   Get started now
@@ -269,6 +364,7 @@ export default function LandingPage() {
 
         {/* Hatching divider */}
         <HatchingDivider className="h-6" />
+        </main>
 
         {/* Footer — multi-column */}
         <footer className="border-x border-border/50 border-t border-border/50 py-12 px-6">
@@ -284,26 +380,27 @@ export default function LandingPage() {
                 </p>
               </div>
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Product</h4>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Product</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li><Link href="/register" className="hover:text-foreground transition-colors">Get Started</Link></li>
                   <li><Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link></li>
-                  <li><span className="text-muted-foreground/50">Dashboard</span></li>
+                  <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                  <li><a href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Chrome Extension</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Resources</h4>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Resources</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><span className="text-muted-foreground/50">Documentation</span></li>
-                  <li><span className="text-muted-foreground/50">API</span></li>
-                  <li><span className="text-muted-foreground/50">Support</span></li>
+                  <li><span className="text-muted-foreground/50">Documentation <span className="text-[10px]">(soon)</span></span></li>
+                  <li><span className="text-muted-foreground/50">API <span className="text-[10px]">(soon)</span></span></li>
+                  <li><a href="mailto:privacy@ghstmail.space" className="hover:text-foreground transition-colors">Support</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Legal</h4>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Legal</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><span className="text-muted-foreground/50">Privacy Policy</span></li>
-                  <li><span className="text-muted-foreground/50">Terms of Service</span></li>
+                  <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                  <li><span className="text-muted-foreground/50">Terms of Service <span className="text-[10px]">(soon)</span></span></li>
                 </ul>
               </div>
             </div>

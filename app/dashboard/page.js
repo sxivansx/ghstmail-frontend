@@ -72,6 +72,24 @@ function XIcon({ className }) {
   );
 }
 
+function ChromeIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8" /><path d="M12 17v4" />
+      <circle cx="12" cy="10" r="2" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
 /* --- Expiration bar --- */
 
 function ExpirationBar({ expiresAt, createdAt }) {
@@ -310,6 +328,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showExtBanner, setShowExtBanner] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("ghstmail_ext_dismissed")) {
+      setShowExtBanner(true);
+    }
+  }, []);
 
   const loadAliases = useCallback(async () => {
     try {
@@ -358,6 +383,37 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* Chrome Extension Banner */}
+      {showExtBanner && (
+        <div className="mb-6 relative rounded-2xl border border-primary/20 bg-primary/[0.03] px-4 py-3 flex items-center gap-4">
+          <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <ChromeIcon className="w-4.5 h-4.5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">Try the Chrome Extension</p>
+            <p className="text-xs text-muted-foreground">Generate aliases on any site without leaving the page.</p>
+          </div>
+          <a
+            href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+          >
+            Add to Chrome
+            <ArrowRightIcon className="w-3.5 h-3.5" />
+          </a>
+          <button
+            onClick={() => {
+              setShowExtBanner(false);
+              localStorage.setItem("ghstmail_ext_dismissed", "1");
+            }}
+            className="shrink-0 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          >
+            <XIcon className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Header row */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -391,7 +447,8 @@ export default function DashboardPage() {
             <MailIcon className="w-7 h-7 text-muted-foreground/50" />
           </div>
           <p className="text-muted-foreground text-sm">No aliases yet</p>
-          <p className="text-muted-foreground/50 text-xs mt-1 mb-5">Create your first alias to get started</p>
+          <p className="text-muted-foreground/50 text-xs mt-1 mb-1">Create an alias, use it on any website, and emails will forward to your real inbox.</p>
+          <p className="text-muted-foreground/50 text-xs mb-5">Your real email stays completely hidden.</p>
           <Button onClick={() => setShowCreate(true)} variant="outline" size="sm">
             <PlusIcon className="w-4 h-4" />
             Create Alias

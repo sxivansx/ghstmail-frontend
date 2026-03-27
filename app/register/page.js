@@ -86,11 +86,20 @@ export default function RegisterPage() {
         <HatchingDivider className="h-6" />
 
         {/* Form area inside border-x */}
-        <div className="border-x border-border/50 flex-1 flex items-center justify-center px-4 pb-16">
+        <main className="border-x border-border/50 flex-1 flex items-center justify-center px-4 pb-16">
           <div className="w-full max-w-sm">
             <div className="opacity-0 animate-fade-up text-center mb-8">
               <h1 className="font-display font-bold text-3xl tracking-tight">Go invisible</h1>
-              <p className="text-muted-foreground mt-2 text-sm">Create your account in seconds</p>
+              <p className="text-muted-foreground mt-2 text-sm">Create your free GhstMail account in seconds</p>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
+                <span>Unlimited aliases</span>
+                <span className="text-border">|</span>
+                <span>Anonymous replies</span>
+                <span className="text-border">|</span>
+                <span>Spam filters</span>
+                <span className="text-border">|</span>
+                <span>Chrome extension</span>
+              </div>
             </div>
 
             <Card className="opacity-0 animate-fade-up-delay-1 bg-card/50 backdrop-blur-sm">
@@ -131,8 +140,14 @@ export default function RegisterPage() {
                         <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                         Creating account...
                       </span>
-                    ) : "Create account"}
+                    ) : "Create free account"}
                   </Button>
+                  <p className="text-center text-[11px] text-muted-foreground/60 mt-3">
+                    By signing up, you agree to our{" "}
+                    <Link href="/privacy" className="text-muted-foreground hover:text-foreground underline underline-offset-2">
+                      Privacy Policy
+                    </Link>
+                  </p>
                 </form>
               </CardContent>
             </Card>
@@ -144,7 +159,7 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

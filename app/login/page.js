@@ -86,7 +86,7 @@ export default function LoginPage() {
         <HatchingDivider className="h-6" />
 
         {/* Form area inside border-x */}
-        <div className="border-x border-border/50 flex-1 flex items-center justify-center px-4 pb-16">
+        <main className="border-x border-border/50 flex-1 flex items-center justify-center px-4 pb-16">
           <div className="w-full max-w-sm">
             <div className="opacity-0 animate-fade-up text-center mb-8">
               <h1 className="font-display font-bold text-3xl tracking-tight">Welcome back</h1>
@@ -132,6 +132,11 @@ export default function LoginPage() {
                       </span>
                     ) : "Sign in"}
                   </Button>
+                  <div className="text-center mt-3">
+                    <a href="mailto:privacy@ghstmail.space?subject=Password%20Reset" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                      Forgot your password?
+                    </a>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -143,7 +148,7 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
