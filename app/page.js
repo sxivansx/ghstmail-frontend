@@ -276,6 +276,84 @@ export default function LandingPage() {
         {/* Hatching divider */}
         <HatchingDivider />
 
+        {/* Why GhstMail section */}
+        <div className="border-x border-border/50">
+          <section className="border-y border-border/50 py-20 px-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-14">
+                <Badge variant="secondary">Why GhstMail</Badge>
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
+                  Not just another temp mail
+                </h2>
+                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
+                  Most disposable email services let you receive. We let you live behind the alias.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                {[
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 17 4 12 9 7" />
+                        <path d="M20 18v-2a4 4 0 00-4-4H4" />
+                      </svg>
+                    ),
+                    title: "Two-way anonymity",
+                    desc: "Most temp mail is receive-only. GhstMail lets you reply from your alias — full conversations without ever exposing your real address.",
+                    highlight: "Reply, not just receive.",
+                  },
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    ),
+                    title: "Aliases that expire on your terms",
+                    desc: "Need a throwaway address for 24 hours? Set a timer. It self-destructs when you\u2019re done. No leftover mess, no manual cleanup.",
+                    highlight: "Set it and forget it.",
+                  },
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                      </svg>
+                    ),
+                    title: "Truly zero knowledge",
+                    desc: "We don\u2019t store your emails, run analytics, set cookies, or fingerprint your browser. Other services say \u201Cprivacy-first\u201D while tracking usage. We don\u2019t.",
+                    highlight: "Privacy by architecture, not policy.",
+                  },
+                  {
+                    icon: (
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                        <path d="M8 21h8" /><path d="M12 17v4" />
+                      </svg>
+                    ),
+                    title: "Generate aliases anywhere",
+                    desc: "The Chrome extension detects email fields on any website and lets you create an alias without leaving the page. No tab-switching, no copy-pasting.",
+                    highlight: "Right where you need it.",
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="flex gap-5 group">
+                    <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mt-0.5 group-hover:bg-primary/15 transition-colors">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                      <p className="text-primary text-xs font-medium mt-2">{item.highlight}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Hatching divider */}
+        <HatchingDivider />
+
         {/* Security / Trust section */}
         <div className="border-x border-border/50">
           <section className="py-20 px-6">
