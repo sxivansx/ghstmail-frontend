@@ -18,12 +18,32 @@ function GhostIcon({ className }) {
   );
 }
 
+// Accepts whatever the user actually pastes: the bare code, lower case, no
+// dash, or the entire verification URL copied out of the terminal. Everything
+// that is not part of the code is discarded, then the dash is put back.
+function normalizeCodeInput(raw) {
+  let value = String(raw);
+  const fromUrl = value.match(/[?&]code=([^&\s]+)/i);
+  if (fromUrl) value = decodeURIComponent(fromUrl[1]);
+
+  const bare = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  return bare.length > 4 ? `${bare.slice(0, 4)}-${bare.slice(4)}` : bare;
+}
+
+const isComplete = (code) => code.replace(/[^A-Z0-9]/g, "").length === 8;
+
 const SCOPE_LABELS = {
   "aliases:read": "Read your aliases",
   "aliases:write": "Create and delete aliases",
   "filters:read": "Read your filters",
   "filters:write": "Create and delete filters",
+  "messages:send": "Send mail from your aliases",
 };
+
+// Sending is the one permission that is never pre-ticked, matching the API keys
+// page and the column default in the database. Granting it should always be a
+// deliberate click, wherever you are.
+const NEVER_PRETICKED = new Set(["messages:send"]);
 
 export default function DevicePage() {
   const router = useRouter();
@@ -44,7 +64,7 @@ export default function DevicePage() {
     }
     setCheckedAuth(true);
     const fromUrl = new URLSearchParams(window.location.search).get("code");
-    if (fromUrl) setCode(fromUrl.toUpperCase());
+    if (fromUrl) setCode(normalizeCodeInput(fromUrl));
   }, [router]);
 
   const lookup = useCallback(async (value) => {
@@ -53,7 +73,7 @@ export default function DevicePage() {
     try {
       const data = await api.getDeviceRequest(value);
       setRequest(data);
-      setGranted(data.scopes);
+      setGranted(data.scopes.filter((s) => !NEVER_PRETICKED.has(s)));
       setStatus("found");
     } catch (err) {
       setError(err.message);
@@ -62,8 +82,11 @@ export default function DevicePage() {
   }, []);
 
   // Auto-look-up when the CLI sent the user here with the code already attached.
+  // When the CLI sent the user here with the code attached (or they pasted the
+  // whole URL), skip straight to the approval screen. Nobody should have to
+  // retype a code the browser already has.
   useEffect(() => {
-    if (checkedAuth && code.length >= 8 && status === "idle" && !request) {
+    if (checkedAuth && isComplete(code) && status === "idle" && !request) {
       lookup(code);
     }
   }, [checkedAuth, code, status, request, lookup]);
@@ -155,21 +178,38 @@ export default function DevicePage() {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      if (code.trim()) lookup(code.trim());
+                      if (isComplete(code)) lookup(code);
                     }}
                   >
                     <Input
                       autoFocus
                       value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      onChange={(e) => setCode(normalizeCodeInput(e.target.value))}
+                      onPaste={(e) => {
+                        // Handle the paste ourselves so pasting the whole
+                        // verification URL works, not just the bare code.
+                        e.preventDefault();
+                        setCode(normalizeCodeInput(e.clipboardData.getData("text")));
+                      }}
                       placeholder="XXXX-XXXX"
-                      className="font-mono text-center text-lg tracking-[0.2em] h-14"
+                      // Lets the browser and iOS offer the code from the
+                      // clipboard or a notification instead of making you type.
+                      autoComplete="one-time-code"
+                      inputMode="text"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      aria-label="Device code"
+                      className="font-mono text-center text-lg tracking-[0.2em] h-14 uppercase"
                       maxLength={9}
                     />
+                    <p className="text-xs text-muted-foreground/70 mt-2 text-center">
+                      Paste the code or the whole URL. Normally the CLI opens this
+                      page with the code already filled in.
+                    </p>
                     <Button
                       type="submit"
                       className="w-full mt-4"
-                      disabled={status === "looking" || code.trim().length < 8}
+                      disabled={status === "looking" || !isComplete(code)}
                     >
                       {status === "looking" ? "Checking..." : "Continue"}
                     </Button>

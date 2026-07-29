@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api, setToken } from "../../lib/api";
 import Link from "next/link";
+import { safeNextPath } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  // Preserve ?next= across the login/register hop.
+  const [nextSuffix, setNextSuffix] = useState("");
+  useEffect(() => {
+    const n = new URLSearchParams(window.location.search).get("next");
+    if (n) setNextSuffix(`?next=${encodeURIComponent(n)}`);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -56,7 +63,7 @@ export default function LoginPage() {
     try {
       const data = await api.login(email, password);
       setToken(data.token);
-      router.push("/dashboard");
+      router.push(safeNextPath("/dashboard"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -143,7 +150,7 @@ export default function LoginPage() {
 
             <p className="opacity-0 animate-fade-up-delay-2 text-center text-sm text-muted-foreground mt-6">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-primary hover:underline font-medium">
+              <Link href={`/register${nextSuffix}`} className="text-primary hover:underline font-medium">
                 Create one
               </Link>
             </p>

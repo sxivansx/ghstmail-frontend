@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-muted-foreground text-sm mb-10">
-          Last updated: March 8, 2026
+          Last updated: July 29, 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
@@ -77,6 +77,46 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">Filter rules</strong> —
                 domains you choose to block or allow.
               </li>
+              <li>
+                <strong className="text-foreground">Reply tokens</strong> — when
+                someone emails one of your aliases, we store their address so
+                that replying to the forwarded message can reach them without
+                revealing yours. This is the sender&apos;s address, not the
+                message. It is deleted when you delete the alias.
+              </li>
+              <li>
+                <strong className="text-foreground">Threading identifiers</strong>{" "}
+                — the <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">Message-ID</code>{" "}
+                of forwarded mail, so replies thread correctly in your mail
+                client. An opaque identifier, not content.
+              </li>
+              <li>
+                <strong className="text-foreground">API keys</strong> — if you
+                create one, we store its name, the scopes you granted, a
+                displayable prefix, and a SHA-256 hash. We never store the key
+                itself, which is why it is shown only once.
+              </li>
+              <li>
+                <strong className="text-foreground">Sending records</strong> — if
+                you send mail through the API, we record which alias sent it, the
+                recipient&apos;s <em>domain</em>, how many recipients there were,
+                and when. We deliberately do not store the recipient&apos;s full
+                address, the subject, or the body. The domain alone is what lets
+                us enforce a sending quota; a full recipient log would be a record
+                of who you talk to, which is the thing this service exists to
+                avoid.
+              </li>
+              <li>
+                <strong className="text-foreground">Idempotency records</strong> —
+                when an API client sends an{" "}
+                <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">
+                  Idempotency-Key
+                </code>
+                , we keep the response to that request for 24 hours so a retry
+                returns the original result instead of creating a duplicate. These
+                responses can contain alias details. They are deleted after 24
+                hours.
+              </li>
             </ul>
           </section>
 
@@ -85,10 +125,16 @@ export default function PrivacyPage() {
               Data We Do Not Collect
             </h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>We do not read, store, or log the content of your emails.</li>
+              <li>We do not read, store, or log the content of your emails, including subject lines.</li>
+              <li>
+                We do not keep a list of who you correspond with. Received mail
+                records the sender only for as long as the alias exists, and sent
+                mail records the recipient&apos;s domain but never their address.
+              </li>
               <li>We do not track your browsing history or web activity.</li>
               <li>We do not collect analytics, fingerprints, or telemetry.</li>
               <li>We do not use cookies for tracking or advertising.</li>
+              <li>The CLI does not phone home. Its update check queries the npm registry, not us.</li>
             </ul>
           </section>
 
@@ -136,6 +182,29 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-foreground font-semibold text-lg mb-3">
+              Sending From an Alias
+            </h2>
+            <p>
+              If you use the API or CLI to send mail from an alias, the message
+              goes out from our server, signed as your alias. The recipient sees
+              the alias and never your real address, and their reply arrives back
+              at the alias and forwards to you.
+            </p>
+            <p className="mt-2">
+              The message itself is not stored, before or after sending. We record
+              only which alias sent it, the recipient&apos;s domain, the number of
+              recipients, and the time, which is what enforces a per-account
+              quota. Sending requires an API key you created with the{" "}
+              <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs">
+                messages:send
+              </code>{" "}
+              permission, and no key has that permission unless you granted it
+              explicitly.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-foreground font-semibold text-lg mb-3">
               Third-Party Sharing
             </h2>
             <p>
@@ -152,9 +221,26 @@ export default function PrivacyPage() {
             <p>
               Your account data is retained as long as your account is active.
               Deleting an alias permanently removes it and all associated reply
-              tokens. You can delete your account at any time, which removes all
-              your data from our systems.
+              tokens, which means older forwarded messages can no longer be
+              replied to through it. You can delete your account at any time,
+              which removes all your data from our systems.
             </p>
+            <ul className="list-disc pl-5 space-y-2 mt-3">
+              <li>
+                <strong className="text-foreground">Idempotency records</strong> —
+                24 hours, then deleted.
+              </li>
+              <li>
+                <strong className="text-foreground">Sending records</strong> —
+                retained while the alias exists, and deleted with it. They hold a
+                recipient domain and a timestamp, never an address or content.
+              </li>
+              <li>
+                <strong className="text-foreground">Revoked API keys</strong> — the
+                row is kept, marked revoked, so you can see that a key existed and
+                when it was last used. Only the hash is stored, never the key.
+              </li>
+            </ul>
           </section>
 
           <section>
@@ -162,9 +248,12 @@ export default function PrivacyPage() {
               Security
             </h2>
             <p>
-              Passwords are hashed with bcrypt. All connections use TLS. DKIM
-              signing is applied to forwarded emails. Authentication uses
-              short-lived JWT tokens.
+              Passwords are hashed with bcrypt. API keys are stored only as a
+              SHA-256 hash, so a key cannot be recovered from our database, which
+              is why we show it to you exactly once. All connections use TLS. DKIM
+              signing is applied to forwarded and sent email. Dashboard
+              authentication uses short-lived JWT tokens, and API keys carry
+              scopes so a key can be limited to only what it needs.
             </p>
           </section>
 

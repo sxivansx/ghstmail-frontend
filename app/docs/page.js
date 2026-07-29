@@ -353,6 +353,60 @@ export default function DocsPage() {
                 inbox. That is the whole design, not a missing feature.
               </div>
 
+              <div className="mb-14">
+                <h2 className="font-display font-bold text-2xl mb-4">Everything you can do</h2>
+                <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
+                  <table className="w-full text-sm min-w-[640px]">
+                    <thead>
+                      <tr className="border-b border-border bg-foreground/[0.02] text-left">
+                        <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                          What
+                        </th>
+                        <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                          API
+                        </th>
+                        <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                          CLI
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      {[
+                        ["Create an alias", "POST /v1/aliases", "ghstmail new [label]"],
+                        ["List aliases", "GET /v1/aliases", "ghstmail alias list"],
+                        ["Read one alias", "GET /v1/aliases/{id}", "ghstmail alias get <ref>"],
+                        ["Rename, or set an expiry", "PATCH /v1/aliases/{id}", "ghstmail alias update <ref>"],
+                        ["Stop delivery, keep the address", "PATCH … {\"active\": false}", "ghstmail alias disable <ref>"],
+                        ["Delete an alias", "DELETE /v1/aliases/{id}", "ghstmail alias rm <ref>"],
+                        ["Block a sender by domain", "POST /v1/filters", "ghstmail filter add <domain>"],
+                        ["List or remove filters", "GET, DELETE /v1/filters", "ghstmail filter list, rm"],
+                        ["Send mail as an alias", "POST /v1/messages", "ghstmail send"],
+                        ["Did mail arrive and forward?", "GET /v1/aliases/{id}", "ghstmail check <ref>"],
+                        ["Watch delivery live", "GET /v1/aliases (ETag)", "ghstmail watch [ref]"],
+                        ["Account and usage totals", "GET /v1/account", "ghstmail account"],
+                        ["Inspect or revoke your key", "GET, DELETE /v1/keys/current", "ghstmail whoami, logout"],
+                        ["Log in without pasting a key", "POST /v1/device/authorize", "ghstmail login"],
+                        ["Check the service is healthy", "GET /v1/health, /v1/ready", "ghstmail doctor"],
+                      ].map(([what, api, cli]) => (
+                        <tr key={api + cli} className="border-b border-border/40 last:border-0">
+                          <td className="px-4 py-2.5">{what}</td>
+                          <td className="px-4 py-2.5">
+                            <code className="font-mono text-[12.5px] text-primary whitespace-nowrap">{api}</code>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <code className="font-mono text-[12.5px] text-foreground/80 whitespace-nowrap">{cli}</code>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  There is no endpoint that returns a received message, a subject, or a sender.
+                  Nothing is stored, so there is nothing to return.
+                </p>
+              </div>
+
               <Section id="start" title="Quickstart">
                 <p>
                   Create a key in{" "}

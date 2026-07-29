@@ -57,7 +57,10 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (!localStorage.getItem("ghstmail_token")) {
-      router.replace("/login");
+      // Carry where they were trying to go, so signing in returns them there
+      // instead of dumping everyone on /dashboard.
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      router.replace(`/login?next=${next}`);
     }
   }, [router]);
 
