@@ -469,8 +469,8 @@ export default function LandingPage() {
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Resources</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><span className="text-muted-foreground/50">Documentation <span className="text-[10px]">(soon)</span></span></li>
-                  <li><span className="text-muted-foreground/50">API <span className="text-[10px]">(soon)</span></span></li>
+                  <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
+                  <li><Link href="/docs#libraries" className="hover:text-foreground transition-colors">API</Link></li>
                   <li><a href="mailto:privacy@ghstmail.space" className="hover:text-foreground transition-colors">Support</a></li>
                 </ul>
               </div>

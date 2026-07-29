@@ -32,6 +32,15 @@ function FilterIcon({ className }) {
   );
 }
 
+function KeyIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="7.5" cy="15.5" r="4.5" />
+      <path d="M10.7 12.3L21 2m-4 0h4v4" />
+    </svg>
+  );
+}
+
 function LogoutIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -60,6 +69,7 @@ export default function DashboardLayout({ children }) {
   const navItems = [
     { href: "/dashboard", label: "Aliases", icon: MailIcon },
     { href: "/dashboard/filters", label: "Filters", icon: FilterIcon },
+    { href: "/dashboard/keys", label: "API keys", icon: KeyIcon },
   ];
 
   return (
