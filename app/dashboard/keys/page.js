@@ -9,12 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+// messages:send is off by default here, matching the server: a key should not
+// gain the ability to send mail unless someone deliberately ticks the box.
 const ALL_SCOPES = [
-  { id: "aliases:read", label: "Read aliases" },
-  { id: "aliases:write", label: "Create and delete aliases" },
-  { id: "filters:read", label: "Read filters" },
-  { id: "filters:write", label: "Create and delete filters" },
+  { id: "aliases:read", label: "Read aliases", default: true },
+  { id: "aliases:write", label: "Create and delete aliases", default: true },
+  { id: "filters:read", label: "Read filters", default: true },
+  { id: "filters:write", label: "Create and delete filters", default: true },
+  { id: "messages:send", label: "Send mail from your aliases", default: false },
 ];
+
+const DEFAULT_SCOPES = ALL_SCOPES.filter((s) => s.default).map((s) => s.id);
 
 function CopyIcon({ className }) {
   return (
@@ -42,7 +47,7 @@ export default function KeysPage() {
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
-  const [scopes, setScopes] = useState(ALL_SCOPES.map((s) => s.id));
+  const [scopes, setScopes] = useState(DEFAULT_SCOPES);
   // The plaintext key is held in memory only, and only until the user leaves.
   const [freshKey, setFreshKey] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -189,7 +194,12 @@ export default function KeysPage() {
             </div>
             <p className="text-xs text-muted-foreground/70 mt-2">
               Grant only what the key needs. A read-only key is safe to put in a script you do
-              not fully trust.
+              not fully trust.{" "}
+              {scopes.includes("messages:send") && (
+                <span className="text-primary">
+                  This key will be able to send mail as any of your aliases.
+                </span>
+              )}
             </p>
           </div>
 

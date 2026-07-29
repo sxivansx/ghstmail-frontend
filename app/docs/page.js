@@ -97,6 +97,46 @@ curl https://api.ghstmail.space/v1/filters \\
   -H "Authorization: Bearer $GHSTMAIL_KEY" \\
   -d '{"domain": "marketing.example.com", "alias_id": "'$ALIAS_ID'"}'`;
 
+const SEND_EXAMPLE = `curl https://api.ghstmail.space/v1/messages \\
+  -H "Authorization: Bearer $GHSTMAIL_KEY" \\
+  -H "Idempotency-Key: $(uuidgen)" \\
+  -d '{
+    "from": "newsletter.k7f2q@ghstmail.space",
+    "to": "someone@example.com",
+    "subject": "Following up",
+    "text": "Sent from an alias. Reply and it reaches me."
+  }'`;
+
+const SEND_RESPONSE = `{
+  "object": "message",
+  "id": "<8b8c988c-2347-0a4a-a0c0-72fa77cb76f4@ghstmail.space>",
+  "from": "newsletter.k7f2q@ghstmail.space",
+  "to": ["someone@example.com"],
+  "subject": "Following up",
+  "status": "sent",
+  "accepted": ["someone@example.com"],
+  "rejected": [],
+  "quota": {
+    "per_hour": { "used": 1, "limit": 60 },
+    "per_day": { "used": 1, "limit": 300 }
+  },
+  "sent_at": "2026-07-29T11:34:02.117Z"
+}`;
+
+const SEND_CLI = `# Body inline, from a file, from stdin, or in your editor
+ghstmail send --from newsletter --to someone@example.com \\
+  --subject "Following up" --text "Sent from an alias."
+
+ghstmail send --from newsletter --to someone@example.com \\
+  --subject "Report" --body ./report.txt
+
+cat notes.md | ghstmail send --from newsletter --to a@example.com \\
+  --subject "Notes" --body -
+
+# See exactly what would go on the wire, send nothing
+ghstmail send --from newsletter --to a@example.com \\
+  --subject "hi" --text "hello" --dry-run`;
+
 const JS_EXAMPLE = `const API = "https://api.ghstmail.space/v1";
 
 async function createAlias(label) {
@@ -238,6 +278,7 @@ const NAV = [
   { id: "idempotency", label: "Idempotency" },
   { id: "aliases", label: "Aliases" },
   { id: "filters", label: "Filters" },
+  { id: "sending", label: "Sending mail" },
   { id: "account", label: "Account" },
   { id: "libraries", label: "Your language" },
   { id: "cli", label: "CLI" },
@@ -350,6 +391,7 @@ export default function DocsPage() {
                     ["aliases:write", "Create, update and delete aliases"],
                     ["filters:read", "List filters"],
                     ["filters:write", "Create and delete filters"],
+                    ["messages:send", "Send mail from your aliases. Never granted by default."],
                   ].map(([scope, description]) => (
                     <div key={scope} className="flex gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 text-sm">
                       <code className="font-mono text-primary text-[13px] w-32 shrink-0">{scope}</code>
@@ -495,6 +537,83 @@ export default function DocsPage() {
                   Blocked mail is counted in{" "}
                   <code className="text-foreground font-mono text-[13px]">emails_received</code> and then
                   dropped, so you can see that something was stopped without it reaching you.
+                </p>
+              </Section>
+
+              <Section id="sending" title="Sending mail">
+                <div className="border border-border rounded-xl px-4 py-1 my-4">
+                  <Endpoint method="POST" path="/v1/messages" scope="messages:send" />
+                </div>
+                <p>
+                  Send as one of your aliases. The recipient sees the alias, never your real
+                  address, and their reply comes back through the alias to your inbox. The message
+                  is DKIM-signed as{" "}
+                  <code className="text-foreground font-mono text-[13px]">ghstmail.space</code>.
+                </p>
+                <Code language="bash">{SEND_EXAMPLE}</Code>
+                <p>
+                  <code className="text-foreground font-mono text-[13px]">from</code> takes an alias
+                  id or address and is resolved server-side against the aliases you own. There is
+                  deliberately no way to supply a raw{" "}
+                  <code className="text-foreground font-mono text-[13px]">From</code> header, so a
+                  key cannot be used to claim an address that is not yours.
+                </p>
+                <Code language="json">{SEND_RESPONSE}</Code>
+                <p>
+                  You get <code className="text-foreground font-mono text-[13px]">202</code> once the
+                  recipient&apos;s server accepts the message, with{" "}
+                  <code className="text-foreground font-mono text-[13px]">accepted</code> and{" "}
+                  <code className="text-foreground font-mono text-[13px]">rejected</code> so partial
+                  delivery is visible. Send an{" "}
+                  <code className="text-foreground font-mono text-[13px]">Idempotency-Key</code> and a
+                  retry cannot send twice.
+                </p>
+
+                <div className="border border-border rounded-xl p-4 bg-muted/20 text-sm my-5">
+                  <div className="text-foreground font-medium mb-2">Limits, and why</div>
+                  <ul className="space-y-1.5 list-disc pl-5 text-muted-foreground">
+                    <li>
+                      <span className="text-foreground">Scope:</span> needs{" "}
+                      <code className="font-mono text-[13px]">messages:send</code>, which is not in
+                      the default set. No existing key can send.
+                    </li>
+                    <li>
+                      <span className="text-foreground">5 recipients</span> per message, all on one
+                      domain. Send separate messages for separate domains.
+                    </li>
+                    <li>
+                      <span className="text-foreground">No recipients on{" "}
+                      <code className="font-mono text-[13px]">ghstmail.space</code></span>, which
+                      would loop back into the alias machinery.
+                    </li>
+                    <li>
+                      <span className="text-foreground">Carriage returns and newlines</span> are
+                      rejected in the subject, so a caller cannot append their own headers.
+                    </li>
+                    <li>
+                      <span className="text-foreground">The alias must be active and unexpired.</span>{" "}
+                      A burned alias is not a usable sending identity.
+                    </li>
+                    <li>
+                      <span className="text-foreground">Quotas</span> per hour and per day, per
+                      account and per alias. Exceeding them returns 429 with{" "}
+                      <code className="font-mono text-[13px]">Retry-After</code>.
+                    </li>
+                  </ul>
+                </div>
+
+                <p>
+                  Only the recipient&apos;s <em>domain</em>, a count and a timestamp are recorded, for
+                  quota accounting. Not the subject, not the body, not the recipient&apos;s local
+                  part. A full recipient log would be a social graph, which is the thing this product
+                  exists to avoid.
+                </p>
+                <p>From the CLI:</p>
+                <Code language="bash">{SEND_CLI}</Code>
+                <p>
+                  <code className="text-foreground font-mono text-[13px]">--dry-run</code> is worth
+                  the habit. Nothing about a sent message is stored, so it is the only opportunity to
+                  read a message back.
                 </p>
               </Section>
 
