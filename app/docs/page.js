@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { highlight } from "./highlight";
+import { CopyButton } from "./code-block";
 
 export const metadata = {
   title: "API Reference",
@@ -186,16 +188,19 @@ Watching github.k7f2q@ghstmail.space every 5s. Ctrl-C to stop.
 
 function Code({ children, language }) {
   return (
-    <div className="relative my-4 group">
-      {language && (
-        <div className="absolute right-3 top-2.5 text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium">
+    <figure className="relative my-4 group rounded-xl border border-border bg-[#0b0b0c] overflow-hidden">
+      <figcaption className="flex items-center justify-between h-8 px-3 border-b border-border/60 bg-foreground/[0.02]">
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium">
           {language}
-        </div>
-      )}
-      <pre className="bg-[#0d0d0d] border border-border rounded-xl p-4 pr-16 overflow-x-auto text-[13px] leading-relaxed">
-        <code className="text-foreground/90 font-mono whitespace-pre">{children}</code>
+        </span>
+        <CopyButton text={children} />
+      </figcaption>
+      <pre className="p-4 overflow-x-auto text-[13px] leading-[1.65]">
+        <code className="font-mono whitespace-pre text-foreground/85">
+          {highlight(children, language)}
+        </code>
       </pre>
-    </div>
+    </figure>
   );
 }
 
