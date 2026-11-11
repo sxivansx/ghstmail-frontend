@@ -43,12 +43,15 @@ export default function FiltersPage() {
   const [domain, setDomain] = useState("");
   const [action, setAction] = useState("block");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const loadFilters = useCallback(async () => {
     try {
       const data = await api.getFilters();
       setFilters(data.filters);
-    } catch {
+      setError("");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -59,14 +62,22 @@ export default function FiltersPage() {
   async function handleCreate(e) {
     e.preventDefault();
     if (!domain) return;
-    await api.createFilter({ domain, action });
-    setDomain("");
-    loadFilters();
+    try {
+      await api.createFilter({ domain, action });
+      setDomain("");
+      await loadFilters();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function handleDelete(id) {
-    await api.deleteFilter(id);
-    loadFilters();
+    try {
+      await api.deleteFilter(id);
+      await loadFilters();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   if (loading) {
@@ -87,6 +98,12 @@ export default function FiltersPage() {
           Block or allow emails from specific domains
         </p>
       </div>
+
+      {error && (
+        <div role="alert" className="border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Create form — border-y wrapper */}
       <div className="border-y border-border/50 py-5">

@@ -20,8 +20,9 @@ npm run dev                    # http://localhost:3000
 | `npm run dev` | dev server |
 | `npm run build` | production build |
 | `npm run start` | serve the production build |
+| `npm test` | tests for `lib/api.js`, run with Node's built-in runner |
 
-There is no test runner or linter configured.
+There is no linter configured.
 
 ## Environment
 

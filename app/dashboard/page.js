@@ -142,10 +142,12 @@ function CreateModal({ open, onClose, onCreated }) {
   const [label, setLabel] = useState("");
   const [expiresHours, setExpiresHours] = useState("");
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
     setCreating(true);
+    setError("");
     try {
       await api.createAlias({
         label: label || undefined,
@@ -155,7 +157,8 @@ function CreateModal({ open, onClose, onCreated }) {
       setExpiresHours("");
       onCreated();
       onClose();
-    } catch {
+    } catch (err) {
+      setError(err.message);
     } finally {
       setCreating(false);
     }
@@ -176,6 +179,11 @@ function CreateModal({ open, onClose, onCreated }) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div role="alert" className="border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
             <Label>Label (optional)</Label>
             <Input
@@ -326,6 +334,8 @@ function AliasCard({ alias, copied, onCopy, onToggle, onDelete }) {
 export default function DashboardPage() {
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showExtBanner, setShowExtBanner] = useState(false);
@@ -340,7 +350,11 @@ export default function DashboardPage() {
     try {
       const data = await api.getAliases();
       setAliases(data.aliases);
-    } catch {
+      setLoadFailed(false);
+      setError("");
+    } catch (err) {
+      setLoadFailed(true);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -357,14 +371,22 @@ export default function DashboardPage() {
   }, [aliases]);
 
   async function handleToggle(alias) {
-    await api.updateAlias(alias.id, { is_active: !alias.is_active });
-    loadAliases();
+    try {
+      await api.updateAlias(alias.id, { is_active: !alias.is_active });
+      await loadAliases();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function handleDelete(id) {
     if (!confirm("Delete this alias permanently?")) return;
-    await api.deleteAlias(id);
-    loadAliases();
+    try {
+      await api.deleteAlias(id);
+      await loadAliases();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   function copyAddress(id, address) {
@@ -414,6 +436,17 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {error && (
+        <div role="alert" className="mb-6 border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive flex items-center justify-between gap-4">
+          <span>{error}</span>
+          {loadFailed && (
+            <Button variant="outline" size="sm" onClick={loadAliases}>
+              Try again
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Header row */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -441,7 +474,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Card grid */}
-      {aliases.length === 0 ? (
+      {loadFailed && aliases.length === 0 ? null : aliases.length === 0 ? (
         <div className="text-center py-24 border border-border rounded-2xl bg-card/50">
           <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto mb-4">
             <MailIcon className="w-7 h-7 text-muted-foreground/50" />
