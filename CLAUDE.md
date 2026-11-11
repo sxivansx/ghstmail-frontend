@@ -25,7 +25,7 @@ No linter is configured.
 - `/api/*` — session JWT. What this app and the Chrome extension use. Returns raw column names (`is_active`) and a plain string `error` on failure.
 - `/v1/*` — API keys with scopes. The public surface, used by the CLI and third parties. Returns normalised names (`active`), lists as `{object:"list", data, has_more}`, and a structured error envelope `{error:{type,code,message,param}, request_id}`. Documented at `/docs` and in the OpenAPI spec at `https://api.ghstmail.space/v1/openapi.json`.
 
-`lib/api.js` targets `/api/*` only. Do not repoint it at `/v1`: `lib/api.js` does `throw new Error(data.error || ...)`, which expects `error` to be a string, so every `/v1` failure would surface as `[object Object]`. CORS is also deliberately disabled on `/v1` so a browser cannot hold an API key.
+`lib/api.js` targets `/api/*` only. The Better Auth calls (`socialSignIn`, `exchangeSession`, `requestPasswordReset`, `resetPassword`) go to `/api/auth/*` with `credentials: "include"` and never send the JWT; those routes return `{ message }` rather than `{ error }`. Do not repoint it at `/v1`: `lib/api.js` does `throw new Error(data.error || ...)`, which expects `error` to be a string, so every `/v1` failure would surface as `[object Object]`. CORS is also deliberately disabled on `/v1` so a browser cannot hold an API key.
 
 **Auth flow:** Token-based. Login/register pages call `api.login`/`api.register`, store the JWT via `setToken()`. The dashboard layout checks for the token on mount and redirects to `/login` if missing. The landing page redirects to `/dashboard` if a token exists.
 
@@ -33,7 +33,9 @@ No linter is configured.
 - `/` — marketing landing page
 - `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the page ships no client JS beyond `app/docs/code-block.js` (the copy button). Do not add a dependency for this.
 - `/pricing` — plans
-- `/login`, `/register` — auth forms
+- `/login`, `/register` — auth forms, with Google/GitHub buttons from `components/social-sign-in.jsx` when `NEXT_PUBLIC_AUTH_PROVIDERS` lists them
+- `/forgot-password`, `/reset-password` — password reset through the backend's Better Auth routes
+- `/auth/complete` — where Google/GitHub sign-in lands; calls `api.exchangeSession()` to swap the Better Auth session cookie for the dashboard JWT
 - `/dashboard` — alias management (CRUD, toggle active/inactive, copy address, expiration tracking)
 - `/dashboard/filters` — email filter management (block by domain)
 - `/dashboard/keys` — API key management. `messages:send` is the one scope unticked by default, matching the server's column default.

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { SocialSignIn, socialSignInError } from "@/components/social-sign-in";
 
 function GhostIcon({ className }) {
   return (
@@ -51,9 +52,16 @@ export default function LoginPage() {
   const router = useRouter();
   // Preserve ?next= across the login/register hop.
   const [nextSuffix, setNextSuffix] = useState("");
+  const [nextPath, setNextPath] = useState("");
   useEffect(() => {
-    const n = new URLSearchParams(window.location.search).get("next");
-    if (n) setNextSuffix(`?next=${encodeURIComponent(n)}`);
+    const params = new URLSearchParams(window.location.search);
+    const n = params.get("next");
+    if (n) {
+      setNextPath(n);
+      setNextSuffix(`?next=${encodeURIComponent(n)}`);
+    }
+    // Set by the backend when a Google or GitHub sign-in fails.
+    setError(socialSignInError(params.get("error")));
   }, []);
 
   async function handleSubmit(e) {
@@ -101,7 +109,8 @@ export default function LoginPage() {
             </div>
 
             <Card className="opacity-0 animate-fade-up-delay-1 bg-card/50 backdrop-blur-sm">
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 space-y-4">
+                <SocialSignIn nextPath={nextPath} />
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {error && (
                     <div className="px-4 py-3 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm">
@@ -140,9 +149,9 @@ export default function LoginPage() {
                     ) : "Sign in"}
                   </Button>
                   <div className="text-center mt-3">
-                    <a href="mailto:privacy@ghstmail.space?subject=Password%20Reset" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                    <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
                       Forgot your password?
-                    </a>
+                    </Link>
                   </div>
                 </form>
               </CardContent>

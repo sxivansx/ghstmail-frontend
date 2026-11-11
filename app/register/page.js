@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { SocialSignIn } from "@/components/social-sign-in";
 
 function GhostIcon({ className }) {
   return (
@@ -51,9 +52,13 @@ export default function RegisterPage() {
   const router = useRouter();
   // Preserve ?next= across the login/register hop.
   const [nextSuffix, setNextSuffix] = useState("");
+  const [nextPath, setNextPath] = useState("");
   useEffect(() => {
     const n = new URLSearchParams(window.location.search).get("next");
-    if (n) setNextSuffix(`?next=${encodeURIComponent(n)}`);
+    if (n) {
+      setNextPath(n);
+      setNextSuffix(`?next=${encodeURIComponent(n)}`);
+    }
   }, []);
 
   async function handleSubmit(e) {
@@ -110,7 +115,8 @@ export default function RegisterPage() {
             </div>
 
             <Card className="opacity-0 animate-fade-up-delay-1 bg-card/50 backdrop-blur-sm">
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 space-y-4">
+                <SocialSignIn nextPath={nextPath} />
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {error && (
                     <div className="px-4 py-3 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm">
@@ -149,7 +155,7 @@ export default function RegisterPage() {
                       </span>
                     ) : "Create free account"}
                   </Button>
-                  <p className="text-center text-[11px] text-muted-foreground/60 mt-3">
+                  <p className="text-center text-[11px] text-muted-foreground mt-3">
                     By signing up, you agree to our{" "}
                     <Link href="/privacy" className="text-muted-foreground hover:text-foreground underline underline-offset-2">
                       Privacy Policy

@@ -28,10 +28,15 @@ There is no linter configured.
 
 ```
 NEXT_PUBLIC_API_URL=https://api.ghstmail.space
+NEXT_PUBLIC_AUTH_PROVIDERS=google,github
 ```
 
-Defaults to `http://localhost:3001` when unset. It is the only variable the app
-needs.
+`NEXT_PUBLIC_API_URL` defaults to `http://localhost:3001` when unset.
+
+`NEXT_PUBLIC_AUTH_PROVIDERS` lists the sign-in buttons to show on `/login` and
+`/register`. Leave it empty until the backend has credentials for a provider,
+otherwise the button leads to an error. Both are read at build time, so a
+change needs a redeploy.
 
 ## Routes
 
@@ -40,7 +45,9 @@ needs.
 | `/` | client | Marketing landing page. Redirects to `/dashboard` when a token is present. |
 | `/docs` | **server** | Public API reference. Ships no client JavaScript apart from the copy buttons. |
 | `/pricing` | client | Plans |
-| `/login`, `/register` | client | Auth forms |
+| `/login`, `/register` | client | Auth forms, plus Google and GitHub buttons when enabled |
+| `/forgot-password`, `/reset-password` | client | Request a reset email, then choose a new password from its link |
+| `/auth/complete` | client | Where Google and GitHub sign-in land; trades the backend's session cookie for the dashboard token |
 | `/dashboard` | client | Alias management: create, label, expire, enable/disable, copy, delete |
 | `/dashboard/filters` | client | Block or allow senders by domain |
 | `/dashboard/keys` | client | Create and revoke API keys, with per-scope checkboxes |

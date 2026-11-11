@@ -320,7 +320,7 @@ export default function LandingPage() {
                       </svg>
                     ),
                     title: "Truly zero knowledge",
-                    desc: "We don\u2019t store your emails, run analytics, set cookies, or fingerprint your browser. Other services say \u201Cprivacy-first\u201D while tracking usage. We don\u2019t.",
+                    desc: "We don\u2019t store your emails, run analytics, set tracking cookies, or fingerprint your browser. Other services say \u201Cprivacy-first\u201D while tracking usage. We don\u2019t.",
                     highlight: "Privacy by architecture, not policy.",
                   },
                   {
@@ -394,7 +394,7 @@ export default function LandingPage() {
                       </svg>
                     ),
                     title: "No tracking. Period.",
-                    desc: "Zero analytics. Zero cookies. Zero telemetry. We have no idea what you do online — and we want to keep it that way.",
+                    desc: "Zero analytics. Zero tracking cookies. Zero telemetry. We have no idea what you do online — and we want to keep it that way.",
                   },
                 ].map((item) => (
                   <Card key={item.title} className="p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">

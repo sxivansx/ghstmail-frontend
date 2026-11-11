@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-muted-foreground text-sm mb-10">
-          Last updated: July 29, 2026
+          Last updated: November 12, 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
@@ -63,9 +63,30 @@ export default function PrivacyPage() {
                 your aliases.
               </li>
               <li>
-                <strong className="text-foreground">Password</strong> — hashed
-                with bcrypt before storage. We never store or see your plaintext
-                password.
+                <strong className="text-foreground">Password</strong> — if you
+                set one, it is hashed before storage: with scrypt, or with bcrypt
+                for passwords set before November 2026. We never store or see your
+                plaintext password.
+              </li>
+              <li>
+                <strong className="text-foreground">Google or GitHub sign-in</strong>{" "}
+                — if you choose it, the provider tells us your email address and
+                that it is yours. We ask for nothing else, and we discard the name
+                and photo providers send anyway. We keep the provider&apos;s ID for
+                your account so the same account signs you in next time.
+              </li>
+              <li>
+                <strong className="text-foreground">Sign-in sessions</strong> —
+                when you sign in we keep a session record with its expiry date, so
+                it can be ended when you sign out or reset your password. We do not
+                record your IP address or browser with it. The session is held in a
+                cookie on <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">api.ghstmail.space</code>{" "}
+                that is used for nothing but signing in.
+              </li>
+              <li>
+                <strong className="text-foreground">Email confirmation</strong> —
+                whether you have confirmed your address, and short-lived single-use
+                codes for confirming it or resetting your password.
               </li>
               <li>
                 <strong className="text-foreground">Alias metadata</strong> —
