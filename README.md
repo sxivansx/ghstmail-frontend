@@ -34,9 +34,10 @@ NEXT_PUBLIC_AUTH_PROVIDERS=google,github
 `NEXT_PUBLIC_API_URL` defaults to `http://localhost:3001` when unset.
 
 `NEXT_PUBLIC_AUTH_PROVIDERS` lists the sign-in buttons to show on `/login` and
-`/register`. Leave it empty until the backend has credentials for a provider,
-otherwise the button leads to an error. Both are read at build time, so a
-change needs a redeploy.
+`/register`. Production reads it from the committed `.env.production`, so
+turning a provider on or off is a commit. Leave a provider out until the
+backend has credentials for it, otherwise its button leads to an error. Both
+values are read at build time.
 
 ## Routes
 
