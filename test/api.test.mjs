@@ -133,3 +133,33 @@ test("resetting sends the token and the new password", async () => {
   assert.match(lastRequest.url, /\/api\/auth\/reset-password$/);
   assert.deepEqual(lastRequest.body, { token: "tok123", newPassword: "brand new password" });
 });
+
+test("billing summary is read with the dashboard token", async () => {
+  setToken("t");
+  respond(200, { enabled: true, plan: "free", alias_limit: 10 });
+  const data = await api.getBilling();
+  assert.equal(data.alias_limit, 10);
+  assert.match(lastRequest.url, /\/api\/billing$/);
+  assert.equal(lastRequest.headers.Authorization, "Bearer t");
+});
+
+test("starting checkout sends the interval and returns Dodo's link", async () => {
+  setToken("t");
+  respond(200, { url: "https://test.checkout.dodopayments.com/abc" });
+  const url = await api.startCheckout("year");
+  assert.equal(url, "https://test.checkout.dodopayments.com/abc");
+  assert.match(lastRequest.url, /\/api\/billing\/checkout$/);
+  assert.equal(lastRequest.method, "POST");
+  assert.deepEqual(lastRequest.body, { interval: "year" });
+});
+
+test("syncing after checkout and opening the portal use their own routes", async () => {
+  setToken("t");
+  respond(200, { plan: "plus" });
+  assert.equal((await api.syncBilling()).plan, "plus");
+  assert.match(lastRequest.url, /\/api\/billing\/sync$/);
+  assert.equal(lastRequest.method, "POST");
+  respond(200, { url: "https://test.portal.dodo/cus_1" });
+  assert.equal(await api.openBillingPortal(), "https://test.portal.dodo/cus_1");
+  assert.match(lastRequest.url, /\/api\/billing\/portal$/);
+});

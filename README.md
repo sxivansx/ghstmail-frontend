@@ -29,6 +29,7 @@ There is no linter configured.
 ```
 NEXT_PUBLIC_API_URL=https://api.ghstmail.space
 NEXT_PUBLIC_AUTH_PROVIDERS=google,github
+NEXT_PUBLIC_BILLING_ENABLED=true
 ```
 
 `NEXT_PUBLIC_API_URL` defaults to `http://localhost:3001` when unset.
@@ -36,8 +37,14 @@ NEXT_PUBLIC_AUTH_PROVIDERS=google,github
 `NEXT_PUBLIC_AUTH_PROVIDERS` lists the sign-in buttons to show on `/login` and
 `/register`. Production reads it from the committed `.env.production`, so
 turning a provider on or off is a commit. Leave a provider out until the
-backend has credentials for it, otherwise its button leads to an error. Both
-values are read at build time.
+backend has credentials for it, otherwise its button leads to an error.
+
+`NEXT_PUBLIC_BILLING_ENABLED=true` shows the Billing link in the dashboard.
+Leave it unset until the backend has `BILLING_ENABLED=true` and Dodo Payments
+keys. The `/dashboard/billing` page itself still loads without it, and says
+paid plans aren't available.
+
+All three values are read at build time.
 
 ## Routes
 
@@ -52,6 +59,7 @@ values are read at build time.
 | `/dashboard` | client | Alias management: create, label, expire, enable/disable, copy, delete |
 | `/dashboard/filters` | client | Block or allow senders by domain |
 | `/dashboard/keys` | client | Create and revoke API keys, with per-scope checkboxes |
+| `/dashboard/billing` | client | Current plan, the free plan's active-alias meter, Plus checkout (hosted by Dodo Payments) and the subscription portal |
 | `/device` | client | Approval step for the CLI's device login |
 | `/privacy` | **server** | Privacy policy |
 

@@ -41,6 +41,15 @@ function KeyIcon({ className }) {
   );
 }
 
+function CardIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20" />
+    </svg>
+  );
+}
+
 function LogoutIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -73,6 +82,10 @@ export default function DashboardLayout({ children }) {
     { href: "/dashboard", label: "Aliases", icon: MailIcon },
     { href: "/dashboard/filters", label: "Filters", icon: FilterIcon },
     { href: "/dashboard/keys", label: "API keys", icon: KeyIcon },
+    // Hidden until paid plans launch, so the live dashboard doesn't change.
+    ...(process.env.NEXT_PUBLIC_BILLING_ENABLED === "true"
+      ? [{ href: "/dashboard/billing", label: "Billing", icon: CardIcon }]
+      : []),
   ];
 
   return (
@@ -103,9 +116,10 @@ export default function DashboardLayout({ children }) {
                       size="sm"
                       asChild
                     >
-                      <Link href={item.href} className="gap-2">
+                      <Link href={item.href} className="gap-2" title={item.label}>
                         <Icon className="w-4 h-4" />
-                        {item.label}
+                        {/* Icons only on narrower screens, so the bar fits; the label stays for screen readers. */}
+                        <span className="sr-only lg:not-sr-only">{item.label}</span>
                       </Link>
                     </Button>
                   );

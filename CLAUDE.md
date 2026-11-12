@@ -39,6 +39,7 @@ No linter is configured.
 - `/dashboard` — alias management (CRUD, toggle active/inactive, copy address, expiration tracking)
 - `/dashboard/filters` — email filter management (block by domain)
 - `/dashboard/keys` — API key management. `messages:send` is the one scope unticked by default, matching the server's column default.
+- `/dashboard/billing` — plan and Plus upgrade. Checkout and the subscription portal are hosted by Dodo Payments; the page only starts them (`api.startCheckout`, `api.openBillingPortal`) and, on return with `?checkout=done`, calls `api.syncBilling()` until the payment shows up. The nav link appears only when `NEXT_PUBLIC_BILLING_ENABLED=true`.
 - `/device` — approval step for the CLI's device login (RFC 8628). Redirects to `/login?next=...` when signed out.
 - `/privacy` — **server component.** Privacy policy. This is a published legal claim: if you change what the backend stores, change this too.
 
