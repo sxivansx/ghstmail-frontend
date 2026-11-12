@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { clearToken } from "../../lib/api";
-import { Button } from "@/components/ui/button";
 
 function GhostIcon({ className }) {
   return (
@@ -50,6 +49,15 @@ function CardIcon({ className }) {
   );
 }
 
+function BookIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+    </svg>
+  );
+}
+
 function LogoutIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -88,56 +96,79 @@ export default function DashboardLayout({ children }) {
       : []),
   ];
 
+  const linkTone = (active) =>
+    active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted";
+
   return (
-    <div className="min-h-screen relative">
-      {/* Outer container with vertical guide lines */}
-      <div className="max-w-7xl mx-auto relative">
-        {/* Vertical guide lines */}
-        <div className="absolute top-0 left-0 h-full w-px bg-border/50" />
-        <div className="absolute top-0 right-0 h-full w-px bg-border/50" />
-
-        {/* Floating nav bar */}
-        <div className="px-4 pt-4 sticky top-0 z-50">
-          <nav className="bg-muted/50 border border-border rounded-2xl px-6 h-14 flex items-center justify-between backdrop-blur-md">
-            <div className="flex items-center gap-6">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <GhostIcon className="w-5 h-5 text-primary" />
-                <span className="font-display font-bold tracking-tight">GhstMail</span>
+    <div className="dashboard-neutral min-h-screen bg-background text-foreground lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">
+      {/* Sidebar, desktop */}
+      <aside className="hidden lg:flex flex-col sticky top-0 h-screen border-r border-border bg-card/40 px-3 py-4">
+        <Link href="/dashboard" className="flex items-center gap-2.5 px-3 h-10 mb-5">
+          <GhostIcon className="w-6 h-6 text-primary" />
+          <span className="font-display font-bold text-lg tracking-tight">GhstMail</span>
+        </Link>
+        <nav aria-label="Dashboard" className="flex flex-col gap-0.5">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`relative flex items-center gap-3 px-3 h-9 rounded-lg text-sm transition-colors ${linkTone(active)} ${active ? "before:absolute before:left-0 before:top-2 before:bottom-2 before:w-0.5 before:rounded-full before:bg-primary" : ""}`}
+              >
+                <Icon className={`w-4 h-4 ${active ? "text-primary" : ""}`} />
+                {item.label}
               </Link>
+            );
+          })}
+        </nav>
+        <div className="mt-auto flex flex-col gap-0.5 border-t border-border pt-3">
+          <Link href="/docs" className={`flex items-center gap-3 px-3 h-9 rounded-lg text-sm transition-colors ${linkTone(false)}`}>
+            <BookIcon className="w-4 h-4" />
+            API docs
+          </Link>
+          <button onClick={handleLogout} className={`flex items-center gap-3 px-3 h-9 rounded-lg text-sm text-left transition-colors ${linkTone(false)}`}>
+            <LogoutIcon className="w-4 h-4" />
+            Sign out
+          </button>
+        </div>
+      </aside>
 
-              <div className="flex items-center gap-1">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = pathname === item.href;
-                  return (
-                    <Button
-                      key={item.href}
-                      variant={active ? "secondary" : "ghost"}
-                      size="sm"
-                      asChild
-                    >
-                      <Link href={item.href} className="gap-2" title={item.label}>
-                        <Icon className="w-4 h-4" />
-                        {/* Icons only on narrower screens, so the bar fits; the label stays for screen readers. */}
-                        <span className="sr-only lg:not-sr-only">{item.label}</span>
-                      </Link>
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-muted-foreground">
-              <LogoutIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
+      <div className="min-w-0">
+        {/* Top bar, phones and tablets */}
+        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-1 h-14 px-4 border-b border-border bg-background/85 backdrop-blur-md">
+          <Link href="/dashboard" className="flex items-center gap-2 mr-auto">
+            <GhostIcon className="w-6 h-6 text-primary" />
+            <span className="font-display font-bold tracking-tight">GhstMail</span>
+          </Link>
+          <nav aria-label="Dashboard" className="flex items-center gap-0.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  title={item.label}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-2 px-2.5 h-9 rounded-lg text-sm transition-colors ${linkTone(active)}`}
+                >
+                  <Icon className={`w-4 h-4 ${active ? "text-primary" : ""}`} />
+                  {/* Icons only on phones, so the bar fits; the label stays for screen readers. */}
+                  <span className="sr-only sm:not-sr-only">{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
-        </div>
+          <button onClick={handleLogout} title="Sign out" className={`flex items-center px-2.5 h-9 rounded-lg transition-colors ${linkTone(false)}`}>
+            <LogoutIcon className="w-4 h-4" />
+            <span className="sr-only">Sign out</span>
+          </button>
+        </header>
 
-        {/* Main content inside border-x */}
-        <div className="border-x border-border/50 mt-2">
-          <main role="main" className="max-w-6xl mx-auto px-6 py-8">{children}</main>
-        </div>
+        <main role="main" className="max-w-[1080px] mx-auto px-5 sm:px-8 py-8 lg:py-10">{children}</main>
       </div>
     </div>
   );

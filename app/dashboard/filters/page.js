@@ -4,8 +4,6 @@ import { api } from "../../../lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -89,91 +87,91 @@ export default function FiltersPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header with Badge */}
-      <div>
-        <Badge variant="secondary" className="mb-2">Filter Rules</Badge>
-        <h1 className="font-display font-bold text-2xl tracking-tight">Filters</h1>
+    <div>
+      <div className="mb-8">
+        <h1 className="font-display font-bold text-[1.75rem] leading-tight tracking-tight">Filters</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Block or allow emails from specific domains
+          Block or allow mail from a whole domain. A rule applies to every alias you have.
         </p>
       </div>
 
       {error && (
-        <div role="alert" className="border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive">
+        <div role="alert" className="mb-6 border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
-      {/* Create form — border-y wrapper */}
-      <div className="border-y border-border/50 py-5">
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <form onSubmit={handleCreate} className="flex gap-3 items-end flex-wrap">
-              <div className="flex-1 min-w-[180px] space-y-2">
-                <Label>Domain</Label>
-                <Input
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  placeholder="e.g. spam.com"
-                  required
-                />
-              </div>
-              <div className="w-36 space-y-2">
-                <Label>Action</Label>
-                <Select value={action} onValueChange={setAction}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="block">Block</SelectItem>
-                    <SelectItem value="allow">Allow</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button type="submit" className="glow-primary">
-                <PlusIcon className="w-4 h-4" />
-                Add Rule
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      <form onSubmit={handleCreate} className="mb-6 rounded-xl border border-border bg-card p-5 flex flex-wrap items-end gap-3">
+        <div className="flex-1 min-w-[200px] space-y-1.5">
+          <Label htmlFor="filter-domain" className="text-sm text-muted-foreground">Domain</Label>
+          <Input
+            id="filter-domain"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            placeholder="e.g. spam.com"
+            required
+          />
+        </div>
+        <div className="w-36 space-y-1.5">
+          <Label className="text-sm text-muted-foreground">Action</Label>
+          <Select value={action} onValueChange={setAction}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="block">Block</SelectItem>
+              <SelectItem value="allow">Allow</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button type="submit">
+          <PlusIcon className="w-4 h-4" />
+          Add rule
+        </Button>
+      </form>
 
-      {/* Filter list */}
-      <div className="space-y-3">
-        {filters.length === 0 && (
-          <div className="text-center py-16 border border-border rounded-2xl bg-card/50">
-            <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <FilterIcon className="w-6 h-6 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground text-sm">No filter rules</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">Add rules above to block unwanted domains</p>
+      {filters.length === 0 ? (
+        <div className="text-center px-6 py-16 border border-border rounded-xl bg-card">
+          <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center mx-auto mb-4">
+            <FilterIcon className="w-6 h-6 text-muted-foreground" />
           </div>
-        )}
-        {filters.map((f) => (
-          <Card key={f.id} className="group border-glow">
-            <CardContent className="py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Badge variant={f.action === "block" ? "destructive" : "default"}>
-                    {f.action.toUpperCase()}
-                  </Badge>
-                  <span className="font-mono text-sm">{f.domain}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
+          <h2 className="font-display font-semibold text-lg">No rules yet</h2>
+          <p className="text-muted-foreground text-sm mt-1.5 max-w-xs mx-auto">
+            Getting spam from one sender? Add its domain above and it stops reaching every alias.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)_96px_36px] items-center gap-x-4 px-5 h-10 border-b border-border text-xs text-muted-foreground">
+            <span>Domain</span>
+            <span>Action</span>
+            <span />
+          </div>
+          <ul>
+            {filters.map((f) => (
+              <li key={f.id} className="group grid grid-cols-[minmax(0,1fr)_96px_36px] items-center gap-x-4 px-5 py-3 border-t border-border first:border-t-0 hover:bg-muted/40 transition-colors">
+                <span className="font-mono text-[13px] truncate">{f.domain}</span>
+                <span>
+                  <span className={`inline-flex h-6 px-2 items-center rounded-md border text-xs ${
+                    f.action === "block"
+                      ? "border-destructive/30 bg-destructive/10 text-destructive"
+                      : "border-border bg-muted text-foreground"
+                  }`}>
+                    {f.action === "block" ? "Block" : "Allow"}
+                  </span>
+                </span>
+                <button
                   onClick={() => handleDelete(f.id)}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
+                  aria-label={`Delete the rule for ${f.domain}`}
+                  className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
                 >
                   <TrashIcon className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
