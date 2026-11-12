@@ -142,3 +142,15 @@ body::before {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(30 4% 25%);
 }
+
+/* The mascot that peeks over the auth cards (components/peeking-ghost.jsx) */
+.peeking-ghost g { transition: transform 0.22s ease-out; }
+.peeking-ghost .eye { transform-box: fill-box; transform-origin: center; transition: transform 0.07s; }
+.peeking-ghost .squeeze { opacity: 0; }
+.peeking-ghost[data-look="blink"] .eye { transform: scaleY(0.1); }
+.peeking-ghost[data-look="squint"] .eye { opacity: 0; }
+.peeking-ghost[data-look="squint"] .squeeze { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .peeking-ghost { animation: ghostPeek 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.6s backwards; }
+  @keyframes ghostPeek { from { transform: translateY(100%); } }
+}
