@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SectionNav } from "@/components/section-nav";
 import { highlight } from "./highlight";
 import { CopyButton } from "./code-block";
-import { DocsNav } from "./docs-nav";
 import { TryIt } from "./try-it";
 import { splitEndpoint } from "@/lib/docs-format";
 
@@ -330,7 +330,7 @@ export default function DocsPage() {
           </div>
 
           <div className="px-5 sm:px-10 pb-14 lg:flex lg:gap-14">
-            <DocsNav items={NAV} />
+            <SectionNav items={NAV} />
 
             <div className="min-w-0 flex-1">
               <div className="flex gap-4 rounded-2xl border border-border bg-card p-5 text-[15px] leading-relaxed text-muted-foreground mb-14">

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-// The sidebar is a client component only so it can mark the section you are reading.
-export function DocsNav({ items }) {
+// The "On this page" sidebar for the docs and legal pages. It is a client component
+// only so it can mark the section you are reading.
+export function SectionNav({ items }) {
   const [active, setActive] = useState(items[0].id);
 
   useEffect(() => {
@@ -14,7 +15,7 @@ export function DocsNav({ items }) {
         const first = items.find((item) => visible.get(item.id));
         if (first) setActive(first.id);
       },
-      { rootMargin: "-88px 0px -55% 0px" }
+      { rootMargin: "-130px 0px -55% 0px" }
     );
     for (const item of items) {
       const section = document.getElementById(item.id);

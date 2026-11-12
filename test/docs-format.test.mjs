@@ -18,3 +18,11 @@ test("splitEndpoint keeps whatever follows the method, even when it is not a pat
 test("splitEndpoint returns no methods for text that does not start with one", () => {
   assert.deepEqual(splitEndpoint("ghstmail send"), { methods: [], rest: "ghstmail send" });
 });
+
+const { sectionId } = await import("../lib/docs-format.js");
+
+test("sectionId turns a heading into an anchor id", () => {
+  assert.equal(sectionId("What we store"), "what-we-store");
+  assert.equal(sectionId("How long we keep things"), "how-long-we-keep-things");
+  assert.equal(sectionId("  Chrome extension!  "), "chrome-extension");
+});

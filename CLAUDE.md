@@ -31,7 +31,7 @@ No linter is configured.
 
 **Pages** (client components via `"use client"` unless marked server):
 - `/` — marketing landing page. Styled by `app/landing.css` (plain CSS, every rule scoped under `.lp`) rather than Tailwind. The demos (alias maker, relay diagram, extension tour, headline fire) are driven by `app/landing-effects.js`, which `page.js` mounts in one effect; the pure helpers live in `lib/landing-demo.js` and are tested. Avoid class names that are also Tailwind utilities (`ring` bit once).
-- `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the only client JS is three small components: `code-block.js` (copy button), `docs-nav.js` (marks the section you are reading) and `try-it.js` (the self-typing sample request in the hero, which sends nothing). Do not add a dependency for this.
+- `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the only client JS is three small components: `code-block.js` (copy button), `components/section-nav.jsx` (marks the section you are reading, shared with the legal pages) and `try-it.js` (the self-typing sample request in the hero, which sends nothing). Do not add a dependency for this.
 - `/pricing` — plans
 - `/login`, `/register` — auth forms, with Google/GitHub buttons from `components/social-sign-in.jsx` when `NEXT_PUBLIC_AUTH_PROVIDERS` lists them
 - `/forgot-password`, `/reset-password` — password reset through the backend's Better Auth routes

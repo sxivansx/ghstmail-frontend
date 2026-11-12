@@ -6,20 +6,23 @@ export const metadata = {
 };
 
 const strong = "text-foreground";
+const sub = "font-display font-semibold text-[1.05rem] text-foreground pt-3";
 const code = "text-foreground bg-muted px-1 py-0.5 rounded text-xs";
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="November 13, 2026">
-      <Section title="The short version">
-        <p>
+    <LegalPage
+      title="Privacy Policy"
+      updated="November 13, 2026"
+      lede={
+        <>
           GhstMail forwards mail to you without reading it or storing it. To make that work we keep
           your email address, your aliases, and the address of whoever wrote to each alias, so your
           replies can find them. Our servers keep short-lived logs for running the service. We
           don&apos;t run analytics, ads or trackers, and we never sell or share your data.
-        </p>
-      </Section>
-
+        </>
+      }
+    >
       <Section title="What GhstMail does">
         <p>
           GhstMail gives you email aliases: addresses you can hand out instead of your real one. Mail
@@ -29,7 +32,7 @@ export default function PrivacyPage() {
       </Section>
 
       <Section title="What we store">
-        <p className={strong}>Your account</p>
+        <h3 className={sub}>Your account</h3>
         <ul className="list-disc pl-5 space-y-2">
           <li>
             <strong className={strong}>Email address</strong>: your login, and where your aliases
@@ -58,7 +61,7 @@ export default function PrivacyPage() {
           </li>
         </ul>
 
-        <p className={strong}>Your aliases</p>
+        <h3 className={sub}>Your aliases</h3>
         <ul className="list-disc pl-5 space-y-2">
           <li>
             Each alias&apos;s address, label, on/off status, creation date, expiry, and running counts
@@ -67,7 +70,7 @@ export default function PrivacyPage() {
           <li>Filter rules: the domains you block or allow.</li>
         </ul>
 
-        <p className={strong}>What makes replies work</p>
+        <h3 className={sub}>What makes replies work</h3>
         <ul className="list-disc pl-5 space-y-2">
           <li>
             <strong className={strong}>The sender&apos;s address</strong> for each message forwarded
@@ -81,7 +84,7 @@ export default function PrivacyPage() {
           <li>Both are kept while the alias exists and deleted when you delete it.</li>
         </ul>
 
-        <p className={strong}>If you use the API</p>
+        <h3 className={sub}>If you use the API</h3>
         <ul className="list-disc pl-5 space-y-2">
           <li>
             <strong className={strong}>API keys</strong>: the name, the permissions you granted, a short
@@ -183,10 +186,8 @@ export default function PrivacyPage() {
       </Section>
 
       <Section title="How long we keep things">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <tbody>
-              {[
+        <dl className="rounded-2xl border border-border bg-card overflow-hidden">
+          {[
                 ["Account and aliases", "Until you delete them"],
                 ["Sender addresses and Message-IDs", "Until the alias is deleted"],
                 ["Sign-in sessions", "7 days, sign-out, or a password reset"],
@@ -195,15 +196,13 @@ export default function PrivacyPage() {
                 ["Server logs", "Size limit being added"],
                 ["Backups", "30 days, once nightly backups are running"],
                 ["Revoked API keys", "Kept and marked revoked, hash only"],
-              ].map(([what, until]) => (
-                <tr key={what} className="border-t border-border/50">
-                  <th scope="row" className="py-2 pr-6 font-normal text-foreground">{what}</th>
-                  <td className="py-2">{until}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          ].map(([what, until]) => (
+            <div key={what} className="grid gap-1 px-5 py-3.5 border-t border-border/60 first:border-t-0 sm:grid-cols-[1fr_1.1fr] sm:gap-6">
+              <dt className="text-foreground">{what}</dt>
+              <dd>{until}</dd>
+            </div>
+          ))}
+        </dl>
       </Section>
 
       <Section title="Your choices">
