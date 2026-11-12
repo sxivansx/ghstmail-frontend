@@ -30,8 +30,8 @@ No linter is configured.
 **Auth flow:** Token-based. Login/register pages call `api.login`/`api.register`, store the JWT via `setToken()`. The dashboard layout checks for the token on mount and redirects to `/login` if missing. The landing page redirects to `/dashboard` if a token exists.
 
 **Pages** (client components via `"use client"` unless marked server):
-- `/` — marketing landing page
-- `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the page ships no client JS beyond `app/docs/code-block.js` (the copy button). Do not add a dependency for this.
+- `/` — marketing landing page. Styled by `app/landing.css` (plain CSS, every rule scoped under `.lp`) rather than Tailwind. The demos (alias maker, relay diagram, extension tour, headline fire) are driven by `app/landing-effects.js`, which `page.js` mounts in one effect; the pure helpers live in `lib/landing-demo.js` and are tested. Avoid class names that are also Tailwind utilities (`ring` bit once).
+- `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the only client JS is three small components: `code-block.js` (copy button), `docs-nav.js` (marks the section you are reading) and `try-it.js` (the self-typing sample request in the hero, which sends nothing). Do not add a dependency for this.
 - `/pricing` — plans
 - `/login`, `/register` — auth forms, with Google/GitHub buttons from `components/social-sign-in.jsx` when `NEXT_PUBLIC_AUTH_PROVIDERS` lists them
 - `/forgot-password`, `/reset-password` — password reset through the backend's Better Auth routes
@@ -44,8 +44,8 @@ No linter is configured.
 
 Server components are server components because they export `metadata` for SEO and need no interactivity.
 
-**UI components:** `components/ui/` contains shadcn/ui primitives (Button, Card, Input, Badge, etc.). Inline SVG icons are used throughout instead of an icon library — each page defines its own icon components.
+**UI components:** `components/ui/` contains shadcn/ui primitives (Button, Card, Input, Badge, etc.). `components/site-header.jsx` is the top bar shared by docs, pricing, privacy and the auth pages. Inline SVG icons are used throughout instead of an icon library — each page defines its own icon components.
 
-**Styling:** Dark mode only (`<html className="dark">`). Uses CSS variables for theming (defined in `globals.css`). Custom fonts: Syne (display/headings) and Outfit (body). Custom animations for fade-up and glow effects defined in `tailwind.config.js`.
+**Styling:** Dark mode only (`<html className="dark">`). Uses CSS variables for theming (defined in `globals.css`). Custom fonts: Bricolage Grotesque (display/headings), Outfit (body) and Martian Mono (addresses and code), loaded by the `@import` at the top of `globals.css`. Custom animations for fade-up and glow effects defined in `tailwind.config.js`.
 
 **Import aliases:** `@/components`, `@/lib`, `@/hooks` (configured in `jsconfig.json`).

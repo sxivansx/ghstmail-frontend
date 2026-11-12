@@ -43,11 +43,13 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        "4xl": "0.7rem",
       },
       fontFamily: {
         sans: ["Outfit", "system-ui", "sans-serif"],
-        display: ["Syne", "system-ui", "sans-serif"],
+        display: ["Bricolage Grotesque", "system-ui", "sans-serif"],
         body: ["Outfit", "system-ui", "sans-serif"],
+        mono: ["Martian Mono", "ui-monospace", "monospace"],
       },
       animation: {
         "fade-up": "fadeUp 0.6s ease-out forwards",

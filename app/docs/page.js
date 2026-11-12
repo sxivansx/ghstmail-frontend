@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { SiteHeader } from "@/components/site-header";
 import { highlight } from "./highlight";
 import { CopyButton } from "./code-block";
+import { DocsNav } from "./docs-nav";
+import { TryIt } from "./try-it";
+import { splitEndpoint } from "@/lib/docs-format";
 
 export const metadata = {
   title: "API Reference",
@@ -13,16 +17,6 @@ export const metadata = {
     url: "https://ghstmail.space/docs",
   },
 };
-
-function GhostIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z" />
-      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
-      <circle cx="15" cy="10" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
 
 /* Code blocks are pre-formatted strings so nothing has to be escaped inline. */
 
@@ -228,9 +222,9 @@ Watching github.k7f2q@ghstmail.space every 5s. Ctrl-C to stop.
 
 function Code({ children, language }) {
   return (
-    <figure className="relative my-4 group rounded-xl border border-border bg-[#0b0b0c] overflow-hidden">
+    <figure className="relative my-4 group rounded-xl border border-border bg-[#080705] overflow-hidden">
       <figcaption className="flex items-center justify-between h-8 px-3 border-b border-border/60 bg-foreground/[0.02]">
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium">
+        <span className="text-[11px] font-mono text-muted-foreground">
           {language}
         </span>
         <CopyButton text={children} />
@@ -244,27 +238,47 @@ function Code({ children, language }) {
   );
 }
 
+function methodTone(method) {
+  if (method === "GET") return "text-sky-400 border-sky-400/30 bg-sky-400/5";
+  if (method === "DELETE") return "text-red-400 border-red-400/30 bg-red-400/5";
+  return "text-primary border-primary/30 bg-primary/5";
+}
+
+function ApiCell({ text }) {
+  const { methods, rest } = splitEndpoint(text);
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+      {methods.map((method) => (
+        <span key={method} className={`text-[10.5px] font-semibold px-1.5 py-0.5 rounded border ${methodTone(method)}`}>
+          {method}
+        </span>
+      ))}
+      <code className="font-mono text-[12.5px] text-foreground/90 ml-1">{rest}</code>
+    </span>
+  );
+}
+
 function Endpoint({ method, path, scope }) {
-  const tone =
-    method === "GET"
-      ? "text-sky-400 border-sky-400/30 bg-sky-400/5"
-      : method === "DELETE"
-        ? "text-red-400 border-red-400/30 bg-red-400/5"
-        : "text-primary border-primary/30 bg-primary/5";
+  const tone = methodTone(method);
   return (
     <div className="flex flex-wrap items-center gap-3 py-2.5 border-b border-border/40 last:border-0">
       <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${tone} shrink-0`}>{method}</span>
       <code className="text-[13px] font-mono text-foreground">{path}</code>
-      {scope && <span className="text-[11px] text-muted-foreground/70 ml-auto font-mono">{scope}</span>}
+      {scope && <span className="text-[11px] text-muted-foreground ml-auto font-mono">{scope}</span>}
     </div>
   );
 }
 
 function Section({ id, title, children }) {
   return (
-    <section id={id} className="scroll-mt-24 mb-16">
-      <h2 className="font-display font-bold text-2xl mb-4 text-foreground">{title}</h2>
-      <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">{children}</div>
+    <section id={id} className="scroll-mt-24 border-t border-border/60 pt-10 mb-14">
+      <h2 className="group font-display font-bold text-[1.7rem] tracking-tight mb-4 text-foreground">
+        <a href={`#${id}`} className="hover:text-primary transition-colors">
+          {title}
+          <span aria-hidden="true" className="ml-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity">#</span>
+        </a>
+      </h2>
+      <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">{children}</div>
     </section>
   );
 }
@@ -287,74 +301,55 @@ const NAV = [
 export default function DocsPage() {
   return (
     <div className="min-h-screen relative">
-      <div className="max-w-7xl mx-auto relative">
-        <div className="absolute top-0 left-0 h-full w-px bg-border/50" />
-        <div className="absolute top-0 right-0 h-full w-px bg-border/50" />
-
-        <header className="px-4 pt-4">
-          <div className="bg-muted/50 border border-border rounded-2xl px-6 h-14 flex items-center backdrop-blur-sm">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <GhostIcon className="w-6 h-6 text-primary" />
-              <span className="font-display font-bold text-lg tracking-tight group-hover:text-primary transition-colors">
-                GhstMail
-              </span>
-            </Link>
-            <span className="ml-3 text-xs text-muted-foreground border-l border-border pl-3">API</span>
-            <a
-              href="https://api.ghstmail.space/v1/openapi.json"
-              className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              OpenAPI spec
-            </a>
-          </div>
-        </header>
-
-        <main className="border-x border-border/50">
-          <div className="max-w-6xl mx-auto px-6 py-14 lg:flex lg:gap-14">
-            {/* Sidebar */}
-            <nav className="hidden lg:block w-44 shrink-0">
-              <div className="sticky top-8">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                  On this page
-                </div>
-                <ul className="space-y-1.5 text-sm">
-                  {NAV.map((item) => (
-                    <li key={item.id}>
-                      <a
-                        href={`#${item.id}`}
-                        className="text-muted-foreground hover:text-primary transition-colors block py-0.5"
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </nav>
-
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display font-bold text-4xl mb-3">API Reference</h1>
-              <p className="text-muted-foreground leading-relaxed mb-3">
+      <SiteHeader />
+      <div className="max-w-[1180px] mx-auto relative">
+        <main className="">
+          <div className="relative px-5 sm:px-10 pt-14 pb-14 lg:pt-20 lg:pb-20 grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-center">
+            <div aria-hidden="true" className="pointer-events-none absolute -z-10 inset-x-0 -top-16 h-[460px] bg-[radial-gradient(closest-side_at_68%_50%,hsl(var(--primary)/0.12),transparent)]" />
+            <div>
+              <h1 className="font-display font-extrabold tracking-tight leading-[0.98] text-[clamp(2.6rem,5.2vw,4.25rem)]">API reference</h1>
+              <p className="mt-5 text-lg leading-relaxed text-muted-foreground max-w-[32em]">
                 Create disposable aliases, decide who reaches your inbox, and check
                 whether mail arrived. REST over HTTPS, JSON in and out.
               </p>
-              <div className="flex items-center gap-2 text-sm mb-4">
-                <span className="text-muted-foreground">Base URL</span>
-                <code className="font-mono text-primary bg-primary/5 border border-primary/20 rounded px-2 py-0.5 text-[13px]">
-                  https://api.ghstmail.space/v1
-                </code>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Link href="/dashboard/keys" className="inline-flex h-[46px] items-center rounded-[11px] bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
+                  Get an API key
+                </Link>
+                <a href="https://api.ghstmail.space/v1/openapi.json" className="inline-flex h-[46px] items-center rounded-[11px] border border-border bg-card px-5 font-medium hover:border-foreground/30 transition-colors">
+                  OpenAPI spec
+                </a>
               </div>
+              <div className="group mt-6 inline-flex items-center gap-3 rounded-[10px] border border-border bg-card pl-3.5 pr-2 h-10 text-sm">
+                <span className="text-muted-foreground">Base URL</span>
+                <code className="font-mono text-[12.5px] text-primary">https://api.ghstmail.space/v1</code>
+                <CopyButton text="https://api.ghstmail.space/v1" />
+              </div>
+            </div>
+            <TryIt />
+          </div>
 
-              <div className="border border-border rounded-xl p-4 bg-muted/20 text-sm text-muted-foreground mb-14">
-                <span className="text-foreground font-medium">One thing up front.</span>{" "}
-                GhstMail never stores the content of your mail, so no endpoint returns a
-                message, a subject, or a sender. What you get is alias configuration and
-                delivery counters. If mail was received and forwarded, it is in your real
-                inbox. That is the whole design, not a missing feature.
+          <div className="px-5 sm:px-10 pb-14 lg:flex lg:gap-14">
+            <DocsNav items={NAV} />
+
+            <div className="min-w-0 flex-1">
+              <div className="flex gap-4 rounded-2xl border border-border bg-card p-5 text-[15px] leading-relaxed text-muted-foreground mb-14">
+                <svg className="w-6 h-6 shrink-0 text-primary mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z" />
+                  <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+                  <circle cx="15" cy="10" r="1.5" fill="currentColor" />
+                </svg>
+                <p>
+                  <span className="text-foreground font-medium">One thing up front.</span>{" "}
+                  GhstMail never stores the content of your mail, so no endpoint returns a
+                  message, a subject, or a sender. What you get is alias configuration and
+                  delivery counters. If mail was received and forwarded, it is in your real
+                  inbox. That is the whole design, not a missing feature.
+                </p>
               </div>
 
               <div className="mb-14">
-                <h2 className="font-display font-bold text-2xl mb-4">Everything you can do</h2>
+                <h2 className="font-display font-bold text-[1.7rem] tracking-tight mb-4">Everything you can do</h2>
                 <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
                   <table className="w-full text-sm min-w-[640px]">
                     <thead>
@@ -391,7 +386,7 @@ export default function DocsPage() {
                         <tr key={api + cli} className="border-b border-border/40 last:border-0">
                           <td className="px-4 py-2.5">{what}</td>
                           <td className="px-4 py-2.5">
-                            <code className="font-mono text-[12.5px] text-primary whitespace-nowrap">{api}</code>
+                            <ApiCell text={api} />
                           </td>
                           <td className="px-4 py-2.5">
                             <code className="font-mono text-[12.5px] text-foreground/80 whitespace-nowrap">{cli}</code>

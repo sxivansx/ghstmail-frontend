@@ -1,97 +1,41 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { mountLanding } from "./landing-effects";
+import "./landing.css";
 
-function GhostIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z" />
-      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
-      <circle cx="15" cy="10" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
+const CLI_SAMPLE = `<span class="c"># create an alias and copy it</span>
+<span class="k">$</span> ghstmail new github
+<span class="o">github.k7f2q@ghstmail.space</span>
+  copied to clipboard  label: github  never expires
 
-function ArrowIcon() {
-  return (
-    <svg className="w-4 h-4 ml-1 group-hover/button:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
+<span class="c"># a throwaway that cleans itself up</span>
+<span class="k">$</span> ghstmail new "free trial" --expires 24h
 
-function HatchingDivider({ className = "h-8" }) {
-  return (
-    <div className={`relative self-stretch overflow-hidden ${className}`}>
-      <div className="absolute inset-0 h-full w-full overflow-hidden">
-        <div className="relative h-full w-full">
-          {Array.from({ length: 300 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-4 w-full origin-top-left -rotate-45"
-              style={{
-                top: `${i * 16 - 120}px`,
-                left: "-100%",
-                width: "300%",
-                outline: "0.5px solid hsl(var(--primary) / 0.12)",
-                outlineOffset: "-0.25px",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+<span class="c"># did the signup email arrive?</span>
+<span class="k">$</span> ghstmail check github
+  state      active
+  received   1
+  forwarded  1
 
-const features = [
-  {
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
-    title: "Instant Aliases",
-    desc: "One click, new address. Use it anywhere — signups, newsletters, trials. Emails land in your real inbox.",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="9 17 4 12 9 7" />
-        <path d="M20 18v-2a4 4 0 00-4-4H4" />
-      </svg>
-    ),
-    title: "Anonymous Replies",
-    desc: "Hit reply like normal. The sender sees only your alias — your real email is never revealed.",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-      </svg>
-    ),
-    title: "Smart Filters",
-    desc: "Getting spam from a domain? Block it in one click. You control exactly what reaches your inbox.",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
-      </svg>
-    ),
-    title: "Self-Destructing Aliases",
-    desc: "Need an address for just a day? Set a timer and it expires on its own. No cleanup required.",
-  },
-];
+<span class="c"># block a sender across every alias</span>
+<span class="k">$</span> ghstmail filter add spam.example.com`;
+
+const CURL_SAMPLE = `<span class="k">$</span> curl https://api.ghstmail.space/v1/aliases \\
+    -H "Authorization: Bearer $GHSTMAIL_KEY" \\
+    -d '{"label": "newsletter"}'
+
+{
+  "object": "alias",
+  "address": <span class="o">"newsletter.k7f2q@ghstmail.space"</span>,
+  "label": "newsletter",
+  "active": true
+}`;
 
 export default function LandingPage() {
   const router = useRouter();
+  const root = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -103,6 +47,11 @@ export default function LandingPage() {
     setLoaded(true);
   }, [router]);
 
+  useEffect(() => {
+    if (!loaded) return;
+    return mountLanding(root.current);
+  }, [loaded]);
+
   if (!loaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -112,383 +61,277 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Outer container with vertical guide lines */}
-      <div className="max-w-7xl mx-auto relative">
-        {/* Vertical guide lines */}
-        <div className="absolute top-0 left-0 h-full w-px bg-border/50" />
-        <div className="absolute top-0 right-0 h-full w-px bg-border/50" />
+    <div className="lp" ref={root}>
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <symbol id="ghost" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z"/>
+          <circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="10" r="1.5" fill="currentColor"/>
+        </symbol>
+      </svg>
 
-        {/* Floating header bar */}
-        <header className="px-4 pt-4">
-          <div className="bg-muted/50 border border-border rounded-2xl px-6 h-14 flex items-center justify-between backdrop-blur-sm">
-            <Link href="/" className="flex items-center gap-2.5">
-              <GhostIcon className="w-7 h-7 text-primary" />
-              <span className="font-display font-bold text-lg tracking-tight">GhstMail</span>
-            </Link>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">
-                  Get Started
-                  <ArrowIcon />
-                </Link>
-              </Button>
-            </div>
+      <header className="nav">
+        <div className="wrap">
+          <a className="brand" href="#top"><svg aria-hidden="true"><use href="#ghost"/></svg>GhstMail</a>
+          <nav className="nav-links" aria-label="Main">
+            <a href="#how">How it works</a>
+            <a href="#developers">CLI and API</a>
+            <a href="#privacy">What we keep</a>
+            <Link href="/pricing">Pricing</Link>
+          </nav>
+          <div className="nav-end">
+            <Link className="btn btn-text" href="/login">Log in</Link>
+            <Link className="btn btn-primary btn-sm" href="/register">Create free account</Link>
           </div>
-        </header>
-
-        {/* Hatching divider after header */}
-        <HatchingDivider className="h-6" />
-
-        <main>
-        {/* Hero — inside border-x */}
-        <div className="border-x border-border/50">
-          <section className="pt-40 pb-16 px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="opacity-0 animate-fade-up">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-8 tracking-wide uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-glow-pulse" />
-                  Privacy-first email forwarding
-                </div>
-              </div>
-
-              <h1 className="opacity-0 animate-fade-up-delay-1 font-display font-extrabold text-5xl sm:text-6xl md:text-7xl tracking-tight leading-[1.05]">
-                Your email.{" "}
-                <span className="text-primary text-glow">Invisible.</span>
-              </h1>
-
-              <p className="opacity-0 animate-fade-up-delay-2 mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-                Generate disposable email aliases that forward to your real inbox.
-                Reply anonymously. Block unwanted senders. Your real address stays hidden.
-              </p>
-
-              <p className="opacity-0 animate-fade-up-delay-2 mt-4 text-sm text-foreground/60">
-                Free forever &middot; No credit card &middot; Set up in seconds
-              </p>
-
-              <div className="opacity-0 animate-fade-up-delay-3 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" className="glow-primary-strong text-base px-8 h-12" asChild>
-                  <Link href="/register">
-                    Create free account
-                    <ArrowIcon />
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" className="text-base px-8 h-12" asChild>
-                  <Link href="/login">I have an account</Link>
-                </Button>
-              </div>
-
-              {/* Chrome Extension pill */}
-              <div className="opacity-0 animate-fade-up-delay-3 mt-6">
-                <a
-                  href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-primary/25 bg-primary/[0.08] hover:bg-primary/15 hover:border-primary/40 text-sm text-foreground/80 hover:text-foreground transition-all group"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/chrome.svg" alt="Chrome" className="w-[18px] h-[18px]" />
-                  Get the Chrome extension
-                  <ArrowIcon />
-                </a>
-              </div>
-            </div>
-          </section>
         </div>
+      </header>
 
-        {/* Hatching divider */}
-        <HatchingDivider />
-
-        {/* How it works — border-y section */}
-        <div className="border-x border-border/50">
-          <section className="border-y border-border/50 py-20 px-6">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-16">
-                <Badge variant="secondary">How It Works</Badge>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  Private email in three steps
-                </h2>
-                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
-                  Three steps to complete email privacy. No complex setup.
-                </p>
+      <main id="top">
+        <section className="hero wrap">
+          <div className="hero-grid">
+            <div>
+              <h1 className="rise">Sign up with an email you can <span className="burn" data-t="burn">burn<canvas className="fire" id="fire" aria-hidden="true"></canvas></span>.</h1>
+              <p className="lede rise" style={{ "--i": 1 }}>GhstMail gives each site its own alias and forwards the mail to your real inbox. Reply from the alias, and when one starts getting spam, you know who leaked it and you switch it off.</p>
+              <div className="hero-actions rise" style={{ "--i": 2 }}>
+                <Link className="btn btn-primary" href="/register">Create free account</Link>
+                <a className="btn btn-quiet" href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj"><img src="/chrome.svg" alt="" width="18" height="18" />Add to Chrome</a>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { step: "01", title: "Generate", desc: "Create a unique alias address in one click from the dashboard or Chrome extension.", hasExtLink: true },
-                  { step: "02", title: "Receive", desc: "Someone emails your alias — it lands in your real inbox instantly. They never see your real address." },
-                  { step: "03", title: "Reply", desc: "Hit reply like normal. Your response goes out from the alias. Two-way conversation, zero exposure." },
-                ].map((item) => (
-                  <Card key={item.step} className="relative p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
-                    <span className="font-display font-extrabold text-5xl text-primary/10 absolute top-4 right-5 group-hover:text-primary/20 transition-colors">
-                      {item.step}
-                    </span>
-                    <div className="relative">
-                      <h3 className="font-display font-bold text-xl mb-2">{item.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {item.hasExtLink
-                          ? <>Create a unique alias address in one click from the dashboard or{" "}
-                              <a href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary">Chrome extension</a>.
-                            </>
-                          : item.desc}
-                      </p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+              <p className="hero-note rise" style={{ "--i": 3 }}>Free, with unlimited aliases. No card.</p>
             </div>
-          </section>
-        </div>
 
-        {/* Hatching divider */}
-        <HatchingDivider />
-
-        {/* Features — border-x with badge */}
-        <div className="border-x border-border/50">
-          <section className="py-20 px-6">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-12">
-                <Badge variant="secondary">Features</Badge>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  Privacy without compromises
-                </h2>
-                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
-                  Everything you need to keep your real email hidden.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {features.map((f) => (
-                  <Card key={f.title} className="p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/15 transition-colors">
-                      {f.icon}
-                    </div>
-                    <h3 className="font-display font-bold text-lg mb-2">{f.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Hatching divider */}
-        <HatchingDivider />
-
-        {/* Why GhstMail section */}
-        <div className="border-x border-border/50">
-          <section className="border-y border-border/50 py-20 px-6">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-14">
-                <Badge variant="secondary">Why GhstMail</Badge>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  Not just another temp mail
-                </h2>
-                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
-                  Most disposable email services let you receive. We let you live behind the alias.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {[
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="9 17 4 12 9 7" />
-                        <path d="M20 18v-2a4 4 0 00-4-4H4" />
-                      </svg>
-                    ),
-                    title: "Two-way anonymity",
-                    desc: "Most temp mail is receive-only. GhstMail lets you reply from your alias — full conversations without ever exposing your real address.",
-                    highlight: "Reply, not just receive.",
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                    ),
-                    title: "Aliases that expire on your terms",
-                    desc: "Need a throwaway address for 24 hours? Set a timer. It self-destructs when you\u2019re done. No leftover mess, no manual cleanup.",
-                    highlight: "Set it and forget it.",
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                      </svg>
-                    ),
-                    title: "Truly zero knowledge",
-                    desc: "We don\u2019t store your emails, run analytics, set tracking cookies, or fingerprint your browser. Other services say \u201Cprivacy-first\u201D while tracking usage. We don\u2019t.",
-                    highlight: "Privacy by architecture, not policy.",
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="3" width="20" height="14" rx="2" />
-                        <path d="M8 21h8" /><path d="M12 17v4" />
-                      </svg>
-                    ),
-                    title: "Generate aliases anywhere",
-                    desc: "The Chrome extension detects email fields on any website and lets you create an alias without leaving the page. No tab-switching, no copy-pasting.",
-                    highlight: "Right where you need it.",
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="flex gap-5 group">
-                    <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mt-0.5 group-hover:bg-primary/15 transition-colors">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                      <p className="text-primary text-xs font-medium mt-2">{item.highlight}</p>
-                    </div>
+            <div className="maker-wrap rise" style={{ "--i": 2 }}>
+              <svg className="peek" id="peek" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z" fill="#0b0a08"/>
+                <g id="eyes">
+                  <circle className="eye" cx="9" cy="9.2" r="1.5" fill="currentColor" stroke="none" />
+                  <circle className="eye" cx="15" cy="9.2" r="1.5" fill="currentColor" stroke="none" />
+                  <path className="squeeze" d="M7.8 7.9l2.3 1.3-2.3 1.3" />
+                  <path className="squeeze" d="M16.2 7.9l-2.3 1.3 2.3 1.3" />
+                </g>
+              </svg>
+              <div className="maker">
+                <label htmlFor="site">Try it. Where are you signing up?</label>
+                <input className="field" id="site" autoComplete="off" spellCheck={false} maxLength={24} placeholder="netflix" />
+                <div className="out">
+                  <p>Give them this instead of your real email</p>
+                  <output className="alias" id="alias" htmlFor="site" aria-live="polite"></output>
+                  <div className="out-actions">
+                    <button className="btn btn-quiet btn-sm" id="copy" type="button">Copy</button>
+                    <button className="btn btn-quiet btn-sm btn-burn" id="burn" type="button">Burn it</button>
+                    <small>forwards to <span className="mono hidden-addr">y••••@•••••.com</span></small>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Hatching divider */}
-        <HatchingDivider />
-
-        {/* Security / Trust section */}
-        <div className="border-x border-border/50">
-          <section className="py-20 px-6">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-12">
-                <Badge variant="secondary">Security</Badge>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                  Your data, protected
-                </h2>
-                <p className="mt-3 text-muted-foreground text-base max-w-lg mx-auto">
-                  Your emails pass through — never stored, never read, never tracked.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
-                    ),
-                    title: "Zero email storage",
-                    desc: "Your emails pass through our servers and are immediately forwarded. Nothing is saved, logged, or read.",
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                    ),
-                    title: "Encrypted by default",
-                    desc: "Bcrypt-hashed passwords, TLS on every connection, and DKIM-signed forwarding. Security isn\u2019t optional.",
-                  },
-                  {
-                    icon: (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                      </svg>
-                    ),
-                    title: "No tracking. Period.",
-                    desc: "Zero analytics. Zero tracking cookies. Zero telemetry. We have no idea what you do online — and we want to keep it that way.",
-                  },
-                ].map((item) => (
-                  <Card key={item.title} className="p-6 group bg-card/50 ring-0 border border-border/50 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/15 transition-colors">
-                      {item.icon}
-                    </div>
-                    <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Hatching divider */}
-        <HatchingDivider />
-
-        {/* CTA — radial gradient background */}
-        <div className="border-x border-border/50">
-          <section
-            className="py-24 px-6 relative overflow-hidden"
-            style={{
-              background: `
-                radial-gradient(ellipse 80% 60% at 50% 50%, hsl(var(--primary) / 0.10) 0%, transparent 70%),
-                repeating-conic-gradient(hsl(var(--primary) / 0.03) 0% 25%, transparent 0% 50%) 0 0 / 20px 20px
-              `,
-            }}
-          >
-            <div className="max-w-2xl mx-auto text-center relative z-10">
-              <Badge variant="secondary">Get Started</Badge>
-              <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight">
-                Ready to go <span className="text-primary">invisible</span>?
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base">Create your first alias in under a minute. No credit card needed.</p>
-              <Button size="lg" className="mt-8 glow-primary-strong text-base px-8 h-12" asChild>
-                <Link href="/register">
-                  Get started now
-                  <ArrowIcon />
-                </Link>
-              </Button>
-            </div>
-          </section>
-        </div>
-
-        {/* Hatching divider */}
-        <HatchingDivider className="h-6" />
-        </main>
-
-        {/* Footer — multi-column */}
-        <footer className="border-x border-border/50 border-t border-border/50 py-12 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <GhostIcon className="w-5 h-5 text-primary" />
-                  <span className="font-display font-bold tracking-tight">GhstMail</span>
                 </div>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Privacy-first email aliases. Stay invisible.
-                </p>
               </div>
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Product</div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><Link href="/register" className="hover:text-foreground transition-colors">Get Started</Link></li>
-                  <li><Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link></li>
-                  <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                  <li><a href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Chrome Extension</a></li>
-                </ul>
-              </div>
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Resources</div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
-                  <li><Link href="/docs#libraries" className="hover:text-foreground transition-colors">API</Link></li>
-                  <li><a href="mailto:privacy@ghstmail.space" className="hover:text-foreground transition-colors">Support</a></li>
-                </ul>
-              </div>
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Legal</div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                  <li><span className="text-muted-foreground/50">Terms of Service <span className="text-[10px]">(soon)</span></span></li>
-                </ul>
-              </div>
-            </div>
-            <div className="border-t border-border/50 pt-6 flex items-center justify-between text-xs text-muted-foreground">
-              <span>&copy; {new Date().getFullYear()} GhstMail</span>
-              <span>Privacy-first email aliases</span>
             </div>
           </div>
-        </footer>
-      </div>
+        </section>
+
+        <section className="band stage-sec" id="how">
+          <div className="wrap">
+            <div className="stage-head">
+              <h2>What each side sees</h2>
+              <div className="tabs" role="tablist" aria-label="Scenario">
+                <button role="tab" aria-selected="true" data-play="in">Mail arrives<i></i></button>
+                <button role="tab" aria-selected="false" data-play="reply">You reply<i></i></button>
+                <button role="tab" aria-selected="false" data-play="off">You burn it<i></i></button>
+              </div>
+            </div>
+
+            <div className="stage" id="stage">
+              <div className="track" aria-hidden="true"><div className="pkt" id="pkt"></div></div>
+              <div className="node">
+                <h3 data-site>Netflix</h3>
+                <span className="big">has on file<br /><span data-alias style={{ color: "var(--amber)" }}></span></span>
+                <div className="slot" id="slot-site"><b>Re: Confirm your email</b><span>from <span data-alias-short></span></span></div>
+              </div>
+              <div className="node node-mid" id="mid">
+                <svg aria-hidden="true"><use href="#ghost"/></svg>
+                <p id="mid-text">forwards, keeps no copy</p>
+              </div>
+              <div className="node">
+                <h3>Your inbox</h3>
+                <span className="big hidden-addr">y••••@•••••.com<br /><span style={{ color: "var(--muted)" }}>only you and GhstMail know it</span></span>
+                <div className="slot" id="slot-inbox"><b>Confirm your email</b><span>to <span data-alias-short></span></span></div>
+              </div>
+            </div>
+            <p className="caption" id="caption" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section className="bento-sec wrap" id="extension">
+        <h2>Everything in the box</h2>
+        <div className="bento">
+          <article className="tile b-ext">
+            <div className="ext-top">
+              <div>
+                <h3>The Chrome extension fills it in for you</h3>
+                <p>Every email field on the web gets a small GET button. One click makes an alias named after the site and types it into the form.</p>
+              </div>
+              <a className="btn btn-primary" href="https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj"><img src="/chrome.svg" alt="" width="18" height="18" />Add to Chrome</a>
+            </div>
+            <ol className="steps" id="ext-steps">
+              <li>Spots the email field</li>
+              <li>Names the alias after the site</li>
+              <li>Fills it in and remembers it</li>
+            </ol>
+            <div className="browser" id="ext-demo">
+                <div className="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span id="ext-url">parcelbird.example/signup</span><svg className="tool"><use href="#ghost"/></svg></div>
+                <div className="page">
+                  <div className="form" id="ext-form">
+                    <strong id="ext-site">Parcelbird</strong>
+                    <span className="hint" id="ext-sub">Create your account</span>
+                    <label>Email
+                      <span className="fake email" id="ext-field"><output id="ext-out"></output>
+                        <button className="get" id="ext-btn" type="button" aria-label="Get an alias for this field"><span id="ext-btn-t">GET</span><svg aria-hidden="true"><use href="#ghost"/></svg></button>
+                      </span>
+                    </label>
+                    <span className="submit" aria-hidden="true">Continue</span>
+                  </div>
+                  <div className="pop" id="ext-pop" aria-hidden="true">
+                    <div className="pop-head"><svg><use href="#ghost"/></svg>GhstMail</div>
+                    <span className="pop-label">Recent</span>
+                    <ul id="ext-recent"></ul>
+                  </div>
+                  <svg className="cursor" id="ext-cur" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6.2 1.6L9.6 19z" fill="#efe9dc" stroke="#0b0a08" strokeWidth="1.2" strokeLinejoin="round"/></svg>
+                </div>
+              </div>
+          </article>
+
+          <article className="tile b-exp">
+            <h3>Set one to expire</h3>
+            <p>For a free trial or a one-off download. When the timer runs out, the alias stops taking mail.</p>
+            <div className="viz dial-row">
+              <div className="dial">
+                <svg viewBox="0 0 104 104" aria-hidden="true"><circle className="trk" cx="52" cy="52" r="46" /><circle className="val" id="ring" cx="52" cy="52" r="46" /></svg>
+                <span id="left"></span>
+              </div>
+              <div className="dial-side">
+                <span className="mono">trial.x9m2d@ghstmail.space</span>
+                <div className="seg" role="group" aria-label="Expires in">
+                  <button type="button" aria-pressed="false" data-h="1">1h</button>
+                  <button type="button" aria-pressed="true" data-h="24">24h</button>
+                  <button type="button" aria-pressed="false" data-h="168">7d</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article className="tile b-block">
+            <h3>Block a whole domain</h3>
+            <p>One rule covers every alias you have.</p>
+            <div className="viz">
+              <ul className="mail" id="mail">
+                <li data-d="promo.example"><span>deals@promo.example</span><span>forwarded</span></li>
+                <li><span>billing@acme.example</span><span>forwarded</span></li>
+                <li data-d="promo.example"><span>offers@promo.example</span><span>forwarded</span></li>
+              </ul>
+              <button className="btn btn-quiet btn-sm" id="block" type="button" aria-pressed="false">Block promo.example</button>
+            </div>
+          </article>
+
+          <article className="tile b-leak">
+            <h3>See who leaked you, then burn it</h3>
+            <p>Each alias goes to one site, so spam points straight at the culprit.</p>
+            <ul className="viz leaks" id="leaks">
+              <li><span className="a">parcelbird.k7f2q@ghstmail.space</span><span className="n">2 this week</span><span className="t"><i style={{ "--w": "5%" }}></i></span></li>
+              <li className="hot"><span className="a">stackforge.m4x8d@ghstmail.space</span><span className="n">41 this week<button className="btn btn-quiet btn-burn" type="button">Burn it</button></span><span className="t"><i style={{ "--w": "100%" }}></i></span></li>
+              <li><span className="a">nightowl.p2r9c@ghstmail.space</span><span className="n">1 this week</span><span className="t"><i style={{ "--w": "3%" }}></i></span></li>
+            </ul>
+          </article>
+
+          <article className="tile b-reply">
+            <h3>Reply as the alias</h3>
+            <p>Hit reply in your own mail app. It goes out signed as the alias.</p>
+            <div className="viz letter">
+              <div><span>From</span><span style={{ color: "var(--amber)" }}>parcelbird.k7f2q@ghstmail.space</span></div>
+              <div><span>To</span><span>help@parcelbird.example</span></div>
+              <div><span>You</span><span className="hidden-addr">y••••@•••••.com, never shown</span></div>
+            </div>
+          </article>
+
+          <article className="tile b-free">
+            <svg aria-hidden="true"><use href="#ghost"/></svg>
+            <div>
+              <h3>All of it is free</h3>
+              <p>Unlimited aliases, no card.</p>
+              <Link href="/pricing">See pricing</Link>
+            </div>
+          </article>
+        </div>
+      </section>
+
+        <section className="dev wrap" id="developers">
+          <div className="dev-grid">
+            <div>
+              <h2>There is a CLI, and an API under it</h2>
+              <p><code>ghstmail new github</code> creates an alias and puts it on your clipboard. The same account is available over REST with scoped API keys and an OpenAPI spec.</p>
+              <p>The CLI does not phone home.</p>
+              <div className="links">
+                <Link className="btn btn-quiet btn-sm" href="/docs">Read the docs</Link>
+                <a className="btn btn-text btn-sm" href="https://api.ghstmail.space/v1/openapi.json">OpenAPI spec</a>
+              </div>
+            </div>
+            <div className="term">
+              <div className="term-bar" role="tablist" aria-label="Example">
+                <button role="tab" aria-selected="true" data-term="cli">cli</button>
+                <button role="tab" aria-selected="false" data-term="curl">curl</button>
+              </div>
+      <pre id="term-cli" dangerouslySetInnerHTML={{ __html: CLI_SAMPLE }} />
+      <pre id="term-curl" hidden dangerouslySetInnerHTML={{ __html: CURL_SAMPLE }} />
+            </div>
+          </div>
+        </section>
+
+        <section className="band ledger" id="privacy">
+          <div className="wrap">
+            <h2>What we keep, and what we don't</h2>
+            <p className="ledger-intro">A forwarding service has to know some things to work. Here is the list, taken from the privacy policy.</p>
+            <div className="cols">
+              <div>
+                <h3>Kept</h3>
+                <ul>
+                  <li>Your real email address<small>It is where your aliases forward to.</small></li>
+                  <li>Your aliases, their labels, and two counters<small>How many emails each one received and forwarded.</small></li>
+                  <li>The address of anyone who emails an alias<small>So your reply can reach them. Deleted when you delete the alias.</small></li>
+                  <li>Message-IDs of forwarded mail<small>So replies thread properly in your mail app.</small></li>
+                  <li>Server logs for fixing delivery and stopping abuse<small>Sender and recipient addresses and the connecting server&apos;s IP. Never content or subject lines.</small></li>
+                </ul>
+              </div>
+              <div className="never">
+                <h3>Never kept</h3>
+                <ul>
+                  <li>Message bodies and subject lines<small>Mail is processed in memory, forwarded and discarded. It never touches our database or disk.</small></li>
+                  <li>Your browsing history or web activity</li>
+                  <li>Analytics, fingerprints, telemetry</li>
+                  <li>Tracking or advertising cookies</li>
+                  <li>Your password or API keys in readable form</li>
+                </ul>
+              </div>
+            </div>
+            <p className="ledger-foot"><Link href="/privacy">Read the full privacy policy</Link></p>
+          </div>
+        </section>
+
+        <section className="close">
+          <div className="wrap">
+            <h2>The next site that asks for your email gets a ghost.</h2>
+            <p>Unlimited aliases, anonymous replies, filters and the Chrome extension are all on the free plan.</p>
+            <Link className="btn btn-primary" href="/register">Create free account</Link>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div className="wrap">
+          <a className="brand" href="#top" style={{ fontSize: "1rem" }}><svg aria-hidden="true" style={{ width: 20, height: 20 }}><use href="#ghost"/></svg>GhstMail</a>
+          <Link href="/docs">Docs</Link>
+          <Link href="/pricing">Pricing</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/refunds">Refunds</Link>
+          <a href="mailto:support@ghstmail.space">Support</a>
+          <span className="end">&copy; {new Date().getFullYear()} GhstMail</span>
+        </div>
+      </footer>
     </div>
   );
 }

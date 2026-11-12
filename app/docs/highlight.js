@@ -9,19 +9,19 @@
  */
 
 const CLASSES = {
-  comment: "text-[#565f89] italic",
-  string: "text-[#9ece6a]",
-  number: "text-[#ff9e64]",
-  keyword: "text-[#bb9af7]",
+  comment: "text-[#8f8777] italic",
+  string: "text-[#c5cf8b]",
+  number: "text-[#ffa55e]",
+  keyword: "text-primary",
   command: "text-primary",
-  flag: "text-[#7dcfff]",
-  variable: "text-[#7dcfff]",
-  property: "text-[#7aa2f7]",
-  literal: "text-[#bb9af7]",
-  operator: "text-[#89ddff]",
-  punctuation: "text-foreground/45",
-  header: "text-[#7aa2f7]",
-  prompt: "text-[#565f89]",
+  flag: "text-[#a9bccd]",
+  variable: "text-[#a9bccd]",
+  property: "text-[#e2d2a4]",
+  literal: "text-[#ffa55e]",
+  operator: "text-[#a9bccd]",
+  punctuation: "text-foreground/60",
+  header: "text-[#a9bccd]",
+  prompt: "text-[#8f8777]",
   url: "text-[#7dcfff] underline decoration-[#7dcfff]/20 underline-offset-2",
 };
 

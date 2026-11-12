@@ -1,302 +1,246 @@
-import Link from "next/link";
+import { LegalPage, Section } from "@/components/legal-page";
 
 export const metadata = {
   title: "Privacy Policy",
-  description: "GhstMail privacy policy. How we handle your data with full transparency.",
+  description: "What GhstMail stores, what it never stores, and how long it keeps things.",
 };
 
-function GhostIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2C7.58 2 4 5.58 4 10v9a1 1 0 001.7.7L7.4 18l1.7 1.7a1 1 0 001.4 0L12 18.2l1.5 1.5a1 1 0 001.4 0L16.6 18l1.7 1.7A1 1 0 0020 19v-9c0-4.42-3.58-8-8-8z" />
-      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
-      <circle cx="15" cy="10" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
+const strong = "text-foreground";
+const code = "text-foreground bg-muted px-1 py-0.5 rounded text-xs";
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen relative">
-      <div className="max-w-7xl mx-auto relative">
-        <div className="absolute top-0 left-0 h-full w-px bg-border/50" />
-        <div className="absolute top-0 right-0 h-full w-px bg-border/50" />
-
-        <header className="px-4 pt-4">
-          <div className="bg-muted/50 border border-border rounded-2xl px-6 h-14 flex items-center backdrop-blur-sm">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <GhostIcon className="w-6 h-6 text-primary" />
-              <span className="font-display font-bold text-lg tracking-tight group-hover:text-primary transition-colors">GhstMail</span>
-            </Link>
-          </div>
-        </header>
-
-      <main className="border-x border-border/50">
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="font-display font-bold text-3xl mb-2">
-          Privacy Policy
-        </h1>
-        <p className="text-muted-foreground text-sm mb-10">
-          Last updated: November 12, 2026
+    <LegalPage title="Privacy Policy" updated="November 13, 2026">
+      <Section title="The short version">
+        <p>
+          GhstMail forwards mail to you without reading it or storing it. To make that work we keep
+          your email address, your aliases, and the address of whoever wrote to each alias, so your
+          replies can find them. Our servers keep short-lived logs for running the service. We
+          don&apos;t run analytics, ads or trackers, and we never sell or share your data.
         </p>
+      </Section>
 
-        <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              What GhstMail Does
-            </h2>
-            <p>
-              GhstMail is an email alias service. You create disposable email
-              addresses that forward incoming mail to your real inbox. Your real
-              email address is never exposed to third parties.
-            </p>
-          </section>
+      <Section title="What GhstMail does">
+        <p>
+          GhstMail gives you email aliases: addresses you can hand out instead of your real one. Mail
+          sent to an alias is forwarded to your real inbox, and when you reply, the reply goes out
+          from the alias. The people you write to only ever see the alias.
+        </p>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Data We Collect
-            </h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>
-                <strong className="text-foreground">Email address</strong> —
-                used to create your account and as the forwarding destination for
-                your aliases.
-              </li>
-              <li>
-                <strong className="text-foreground">Password</strong> — if you
-                set one, it is hashed before storage: with scrypt, or with bcrypt
-                for passwords set before November 2026. We never store or see your
-                plaintext password.
-              </li>
-              <li>
-                <strong className="text-foreground">Google or GitHub sign-in</strong>{" "}
-                — if you choose it, the provider tells us your email address and
-                that it is yours. We ask for nothing else, and we discard the name
-                and photo providers send anyway. We keep the provider&apos;s ID for
-                your account so the same account signs you in next time.
-              </li>
-              <li>
-                <strong className="text-foreground">Sign-in sessions</strong> —
-                when you sign in we keep a session record with its expiry date, so
-                it can be ended when you sign out or reset your password. We do not
-                record your IP address or browser with it. The session is held in a
-                cookie on <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">api.ghstmail.space</code>{" "}
-                that is used for nothing but signing in.
-              </li>
-              <li>
-                <strong className="text-foreground">Email confirmation</strong> —
-                whether you have confirmed your address, and short-lived single-use
-                codes for confirming it or resetting your password.
-              </li>
-              <li>
-                <strong className="text-foreground">Alias metadata</strong> —
-                alias addresses, labels, active/inactive status, creation dates,
-                and aggregate counts (emails received/forwarded). We do not store
-                the content of forwarded emails.
-              </li>
-              <li>
-                <strong className="text-foreground">Filter rules</strong> —
-                domains you choose to block or allow.
-              </li>
-              <li>
-                <strong className="text-foreground">Reply tokens</strong> — when
-                someone emails one of your aliases, we store their address so
-                that replying to the forwarded message can reach them without
-                revealing yours. This is the sender&apos;s address, not the
-                message. It is deleted when you delete the alias.
-              </li>
-              <li>
-                <strong className="text-foreground">Threading identifiers</strong>{" "}
-                — the <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">Message-ID</code>{" "}
-                of forwarded mail, so replies thread correctly in your mail
-                client. An opaque identifier, not content.
-              </li>
-              <li>
-                <strong className="text-foreground">API keys</strong> — if you
-                create one, we store its name, the scopes you granted, a
-                displayable prefix, and a SHA-256 hash. We never store the key
-                itself, which is why it is shown only once.
-              </li>
-              <li>
-                <strong className="text-foreground">Sending records</strong> — if
-                you send mail through the API, we record which alias sent it, the
-                recipient&apos;s <em>domain</em>, how many recipients there were,
-                and when. We deliberately do not store the recipient&apos;s full
-                address, the subject, or the body. The domain alone is what lets
-                us enforce a sending quota; a full recipient log would be a record
-                of who you talk to, which is the thing this service exists to
-                avoid.
-              </li>
-              <li>
-                <strong className="text-foreground">Idempotency records</strong> —
-                when an API client sends an{" "}
-                <code className="text-foreground bg-muted px-1 py-0.5 rounded text-xs">
-                  Idempotency-Key
-                </code>
-                , we keep the response to that request for 24 hours so a retry
-                returns the original result instead of creating a duplicate. These
-                responses can contain alias details. They are deleted after 24
-                hours.
-              </li>
-            </ul>
-          </section>
+      <Section title="What we store">
+        <p className={strong}>Your account</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className={strong}>Email address</strong>: your login, and where your aliases
+            forward to.
+          </li>
+          <li>
+            <strong className={strong}>Password</strong>, if you set one. It is stored only as a hash:
+            scrypt, or bcrypt for passwords set before November 2026. We can&apos;t see your password.
+          </li>
+          <li>
+            <strong className={strong}>Google or GitHub sign-in</strong>, if you use it. The provider
+            tells us your email address and confirms it&apos;s yours. We ask for nothing else, and we
+            discard the name and photo the provider sends anyway. We keep the provider&apos;s ID for
+            your account so it signs you in next time.
+          </li>
+          <li>
+            <strong className={strong}>Sign-in sessions</strong>: a session record with an expiry date
+            (7 days), so it can be ended when you sign out or reset your password. We don&apos;t record
+            your IP address or browser with it. It&apos;s held in a cookie on{" "}
+            <code className={code}>api.ghstmail.space</code>, used only to keep you signed in.
+          </li>
+          <li>
+            <strong className={strong}>Email confirmation</strong>: whether you&apos;ve confirmed your
+            address, plus single-use codes for confirming it or resetting your password. Those codes
+            expire within an hour.
+          </li>
+        </ul>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Data We Do Not Collect
-            </h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>We do not read, store, or log the content of your emails, including subject lines.</li>
-              <li>
-                We do not keep a list of who you correspond with. Received mail
-                records the sender only for as long as the alias exists, and sent
-                mail records the recipient&apos;s domain but never their address.
-              </li>
-              <li>We do not track your browsing history or web activity.</li>
-              <li>We do not collect analytics, fingerprints, or telemetry.</li>
-              <li>We do not use cookies for tracking or advertising.</li>
-              <li>The CLI does not phone home. Its update check queries the npm registry, not us.</li>
-            </ul>
-          </section>
+        <p className={strong}>Your aliases</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            Each alias&apos;s address, label, on/off status, creation date, expiry, and running counts
+            of messages received and forwarded.
+          </li>
+          <li>Filter rules: the domains you block or allow.</li>
+        </ul>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Chrome Extension
-            </h2>
-            <p>The GhstMail Chrome extension:</p>
-            <ul className="list-disc pl-5 space-y-2 mt-2">
-              <li>
-                Stores your authentication token locally using{" "}
-                <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs">
-                  chrome.storage.local
-                </code>{" "}
-                so you stay logged in.
-              </li>
-              <li>
-                Detects email input fields on web pages to show the alias
-                generation button. No page content is collected or transmitted.
-              </li>
-              <li>
-                Communicates only with{" "}
-                <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs">
-                  api.ghstmail.space
-                </code>{" "}
-                to generate aliases and authenticate. No other external requests
-                are made.
-              </li>
-              <li>Does not inject remote code or execute external scripts.</li>
-            </ul>
-          </section>
+        <p className={strong}>What makes replies work</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className={strong}>The sender&apos;s address</strong> for each message forwarded
+            to you, so your reply can reach them without revealing your address. Not the message, not
+            the subject.
+          </li>
+          <li>
+            <strong className={strong}>The <code className={code}>Message-ID</code></strong> of
+            forwarded mail, an opaque identifier, so replies thread correctly in your mail client.
+          </li>
+          <li>Both are kept while the alias exists and deleted when you delete it.</li>
+        </ul>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              How Email Forwarding Works
-            </h2>
-            <p>
-              When an email arrives at one of your aliases, our server parses it,
-              rewrites the headers, and forwards it to your real email address.
-              The email content passes through our server in transit but is never
-              stored on disk or in our database. Reply tokens are generated to
-              enable two-way communication without revealing your real address.
-            </p>
-          </section>
+        <p className={strong}>If you use the API</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className={strong}>API keys</strong>: the name, the permissions you granted, a short
+            prefix so you can tell keys apart, and a SHA-256 hash. Never the key itself, which is why
+            it&apos;s shown only once.
+          </li>
+          <li>
+            <strong className={strong}>Sending records</strong>: for mail sent through the API, which
+            alias sent it, the recipient&apos;s domain (never their full address), the number of
+            recipients and the time. This enforces the sending quota.
+          </li>
+          <li>
+            <strong className={strong}>Idempotency records</strong>: the response to a request sent
+            with an <code className={code}>Idempotency-Key</code>, kept 24 hours so a retry doesn&apos;t
+            create a duplicate.
+          </li>
+        </ul>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Sending From an Alias
-            </h2>
-            <p>
-              If you use the API or CLI to send mail from an alias, the message
-              goes out from our server, signed as your alias. The recipient sees
-              the alias and never your real address, and their reply arrives back
-              at the alias and forwards to you.
-            </p>
-            <p className="mt-2">
-              The message itself is not stored, before or after sending. We record
-              only which alias sent it, the recipient&apos;s domain, the number of
-              recipients, and the time, which is what enforces a per-account
-              quota. Sending requires an API key you created with the{" "}
-              <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs">
-                messages:send
-              </code>{" "}
-              permission, and no key has that permission unless you granted it
-              explicitly.
-            </p>
-          </section>
+      <Section title="What passes through but is never stored">
+        <p>
+          The content of your email: the body, attachments and subject line. A message is processed in
+          memory on our server, forwarded, and discarded. It never touches our database or disk.
+        </p>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Third-Party Sharing
-            </h2>
-            <p>
-              We do not sell, rent, or share your personal data with any third
-              party. We do not use your data for advertising, analytics, or
-              creditworthiness purposes.
-            </p>
-          </section>
+      <Section title="Server logs">
+        <p>Like any mail server, ours keeps operational logs so we can fix delivery problems and stop abuse:</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className={strong}>The mail server</strong> logs the sender and recipient
+            addresses of each delivery, the IP address of the server that connected, and the results
+            of standard anti-spam checks (SPF, DKIM and reverse DNS).
+          </li>
+          <li>
+            <strong className={strong}>The API</strong> logs the IP address and path of each request,
+            not what was sent in it.
+          </li>
+        </ul>
+        <p>
+          Logs never contain message content or subject lines. We&apos;re adding size limits to our
+          logs, so that old entries are overwritten as new ones arrive.
+        </p>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Data Retention
-            </h2>
-            <p>
-              Your account data is retained as long as your account is active.
-              Deleting an alias permanently removes it and all associated reply
-              tokens, which means older forwarded messages can no longer be
-              replied to through it. You can delete your account at any time,
-              which removes all your data from our systems.
-            </p>
-            <ul className="list-disc pl-5 space-y-2 mt-3">
-              <li>
-                <strong className="text-foreground">Idempotency records</strong> —
-                24 hours, then deleted.
-              </li>
-              <li>
-                <strong className="text-foreground">Sending records</strong> —
-                retained while the alias exists, and deleted with it. They hold a
-                recipient domain and a timestamp, never an address or content.
-              </li>
-              <li>
-                <strong className="text-foreground">Revoked API keys</strong> — the
-                row is kept, marked revoked, so you can see that a key existed and
-                when it was last used. Only the hash is stored, never the key.
-              </li>
-            </ul>
-          </section>
+      <Section title="Backups">
+        <p>
+          We&apos;re setting up nightly backups of our database so a failure doesn&apos;t lose your
+          aliases. They will stay on our own server and delete themselves after 30 days, so anything
+          you delete from GhstMail will be gone from backups within that time.
+        </p>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Security
-            </h2>
-            <p>
-              Passwords are hashed with bcrypt. API keys are stored only as a
-              SHA-256 hash, so a key cannot be recovered from our database, which
-              is why we show it to you exactly once. All connections use TLS. DKIM
-              signing is applied to forwarded and sent email. Dashboard
-              authentication uses short-lived JWT tokens, and API keys carry
-              scopes so a key can be limited to only what it needs.
-            </p>
-          </section>
+      <Section title="What we never collect">
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            No analytics, tracking pixels, fingerprinting or telemetry, on the website, in the Chrome
+            extension or in the CLI.
+          </li>
+          <li>No cookies for tracking or advertising. The only cookie is the sign-in one above.</li>
+          <li>No browsing history or web activity.</li>
+          <li>The CLI&apos;s update check asks the npm registry, not us.</li>
+        </ul>
+      </Section>
 
-          <section>
-            <h2 className="text-foreground font-semibold text-lg mb-3">
-              Contact
-            </h2>
-            <p>
-              For questions about this privacy policy, contact us at{" "}
-              <a
-                href="mailto:privacy@ghstmail.space"
-                className="text-primary hover:underline"
-              >
-                privacy@ghstmail.space
-              </a>
-              .
-            </p>
-          </section>
+      <Section title="Services we rely on">
+        <p>We don&apos;t sell, rent or share your data. Running GhstMail does mean these companies handle traffic on our behalf:</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong className={strong}>DigitalOcean</strong> hosts our server and database.</li>
+          <li>
+            <strong className={strong}>Cloudflare</strong> sits in front of{" "}
+            <code className={code}>api.ghstmail.space</code>, so it sees API requests in transit.
+          </li>
+          <li>
+            <strong className={strong}>Vercel</strong> hosts this website, so it sees normal web
+            requests to <code className={code}>ghstmail.space</code>.
+          </li>
+          <li><strong className={strong}>Google or GitHub</strong>, only if you choose to sign in with them.</li>
+        </ul>
+        <p>Forwarded mail is delivered to your own email provider, and your replies to the sender&apos;s.</p>
+      </Section>
+
+      <Section title="Chrome extension">
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Stores your sign-in token in your browser (<code className={code}>chrome.storage.local</code>).</li>
+          <li>Looks for email fields on pages to show the alias button, without collecting or sending any page content.</li>
+          <li>Talks only to <code className={code}>api.ghstmail.space</code>.</li>
+          <li>Runs no remote code.</li>
+        </ul>
+      </Section>
+
+      <Section title="Sending from an alias">
+        <p>
+          If you send mail through the API or CLI, it goes out from our server, signed as your alias.
+          The message isn&apos;t stored before or after sending; we keep only the sending record
+          described above. Sending needs an API key that you explicitly gave the{" "}
+          <code className={code}>messages:send</code> permission.
+        </p>
+      </Section>
+
+      <Section title="How long we keep things">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <tbody>
+              {[
+                ["Account and aliases", "Until you delete them"],
+                ["Sender addresses and Message-IDs", "Until the alias is deleted"],
+                ["Sign-in sessions", "7 days, sign-out, or a password reset"],
+                ["Confirmation and reset codes", "1 hour, or first use"],
+                ["Idempotency records", "24 hours"],
+                ["Server logs", "Size limit being added"],
+                ["Backups", "30 days, once nightly backups are running"],
+                ["Revoked API keys", "Kept and marked revoked, hash only"],
+              ].map(([what, until]) => (
+                <tr key={what} className="border-t border-border/50">
+                  <th scope="row" className="py-2 pr-6 font-normal text-foreground">{what}</th>
+                  <td className="py-2">{until}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
-      </main>
-      </div>
-    </div>
+      </Section>
+
+      <Section title="Your choices">
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Delete an alias at any time from the dashboard. Its reply records go with it immediately.</li>
+          <li>
+            Delete your account by emailing{" "}
+            <a href="mailto:support@ghstmail.space" className="text-primary hover:underline">support@ghstmail.space</a>{" "}
+            from your account&apos;s address. We delete it, with everything in it, within 7 days. Once
+            backups are running, they age out within 30 days after that.
+          </li>
+          <li>Ask what we hold about you by emailing us, and we&apos;ll send it to you.</li>
+        </ul>
+      </Section>
+
+      <Section title="Security">
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Passwords are hashed with scrypt, or bcrypt for older ones.</li>
+          <li>API keys are stored only as hashes, and carry permissions so a key can do only what you allowed.</li>
+          <li>Every connection to the website and API uses TLS, and our mail server accepts encrypted (STARTTLS) connections.</li>
+          <li>Forwarded and sent mail is DKIM-signed.</li>
+        </ul>
+      </Section>
+
+      <Section title="Changes to this policy">
+        <p>
+          When this policy changes, we update the date at the top. If a change lets us keep more about
+          you, we&apos;ll email account holders before it takes effect.
+        </p>
+      </Section>
+
+      <Section title="Contact">
+        <p>
+          Questions or requests:{" "}
+          <a href="mailto:privacy@ghstmail.space" className="text-primary hover:underline">privacy@ghstmail.space</a>
+        </p>
+      </Section>
+    </LegalPage>
   );
 }
