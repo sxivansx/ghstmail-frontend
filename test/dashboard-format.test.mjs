@@ -101,3 +101,43 @@ test("describeScopes calls out a key that can send mail, and keeps scopes it doe
   assert.deepEqual(describeScopes(["aliases:read", "messages:send", "billing:read"]), ["Aliases: read only", "Sends mail", "billing:read"]);
   assert.deepEqual(describeScopes([]), []);
 });
+
+const { aliasQuery, resolveAliasPage } = await import("../lib/dashboard-format.js");
+
+test("aliasQuery asks for one page and only sends the filters that are set", () => {
+  assert.equal(aliasQuery({ page: 1, size: 25, query: "", status: "all" }), "?limit=25&offset=0");
+  assert.equal(aliasQuery({ page: 3, size: 25, query: " shop & co ", status: "paused" }), "?limit=25&offset=50&q=shop+%26+co&status=paused");
+});
+
+const request = { page: 2, size: 2, query: "", status: "all" };
+
+test("resolveAliasPage reads a paged response from the server as it is", () => {
+  const view = resolveAliasPage(
+    { aliases: [{ id: "c" }, { id: "d" }], total: 5, limit: 2, offset: 2, summary: { total: 9, active: 6, received: 200, forwarded: 150 } },
+    request
+  );
+  assert.equal(view.paged, true);
+  assert.deepEqual(view.rows.map((a) => a.id), ["c", "d"]);
+  assert.deepEqual({ matching: view.matching, page: view.page, pages: view.pages, from: view.from, to: view.to }, { matching: 5, page: 2, pages: 3, from: 3, to: 4 });
+  assert.deepEqual(view.summary, { count: 9, active: 6, received: 200, forwarded: 150, stopped: 50, rate: 0.75 });
+});
+
+test("resolveAliasPage pages and totals a full list itself when the server sent everything", () => {
+  const all = [
+    { id: "a", address: "a@x", is_active: true, emails_received: 10, emails_forwarded: 10 },
+    { id: "b", address: "b@x", is_active: false, emails_received: 10, emails_forwarded: 0 },
+    { id: "c", address: "c@x", is_active: true, emails_received: 0, emails_forwarded: 0 },
+  ];
+  const view = resolveAliasPage({ aliases: all }, request);
+  assert.equal(view.paged, false);
+  assert.deepEqual(view.rows.map((a) => a.id), ["c"]);
+  assert.deepEqual({ matching: view.matching, page: view.page, pages: view.pages, from: view.from, to: view.to }, { matching: 3, page: 2, pages: 2, from: 3, to: 3 });
+  assert.deepEqual(view.summary, { count: 3, active: 2, received: 20, forwarded: 10, stopped: 10, rate: 0.5 });
+  assert.deepEqual(resolveAliasPage({ aliases: all }, { ...request, page: 1, status: "paused" }).rows.map((a) => a.id), ["b"]);
+});
+
+test("resolveAliasPage reports the last real page when the one asked for is now empty", () => {
+  const view = resolveAliasPage({ aliases: [], total: 4, limit: 2, offset: 4, summary: { total: 4, active: 4, received: 0, forwarded: 0 } }, { ...request, page: 3 });
+  assert.deepEqual({ page: view.page, pages: view.pages, from: view.from, to: view.to }, { page: 2, pages: 2, from: 0, to: 0 });
+  assert.equal(view.summary.rate, null);
+});

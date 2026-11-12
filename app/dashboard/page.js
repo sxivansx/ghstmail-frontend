@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { api } from "../../lib/api";
-import { filterAliases, expiryLabel, deliverySummary, forwardRate, scrambleFrame, paginate } from "../../lib/dashboard-format";
+import { expiryLabel, forwardRate, scrambleFrame, aliasQuery, resolveAliasPage } from "../../lib/dashboard-format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -402,7 +402,9 @@ function AliasRow({ alias, fresh, now, copied, onCopy, onToggle, onDelete, onSet
 /* --- Main page --- */
 
 export default function DashboardPage() {
-  const [aliases, setAliases] = useState([]);
+  // The last response from the server: one page of aliases, or all of them.
+  const [data, setData] = useState({ aliases: [] });
+  const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [error, setError] = useState("");
@@ -410,6 +412,8 @@ export default function DashboardPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showExtBanner, setShowExtBanner] = useState(false);
   const [query, setQuery] = useState("");
+  // The search text that requests use, a beat behind what is typed.
+  const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [now, setNow] = useState(() => Date.now());
   // Rows made with "Instant alias" this visit, newest first. They stay pinned to the top.
@@ -430,27 +434,54 @@ export default function DashboardPage() {
     }
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(query), 250);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const ask = useMemo(() => ({ page, size: PAGE_SIZE, query: search, status }), [page, search, status]);
+  const askRef = useRef(ask);
+  askRef.current = ask;
+  const latest = useRef(0);
+
   const loadAliases = useCallback(async () => {
+    const mine = ++latest.current;
+    setFetching(true);
     try {
-      const data = await api.getAliases();
-      setAliases(data.aliases);
+      const response = await api.getAliases(aliasQuery(askRef.current));
+      // A newer request has gone out since; its answer is the one to show.
+      if (mine !== latest.current) return;
+      setData(response);
       setLoadFailed(false);
       setError("");
     } catch (err) {
+      if (mine !== latest.current) return;
       setLoadFailed(true);
       setError(err.message);
     } finally {
+      if (mine === latest.current) setFetching(false);
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { loadAliases(); }, [loadAliases]);
+  const view = useMemo(() => resolveAliasPage(data, ask), [data, ask]);
+  const summary = view.summary;
 
-  // Summary stats
-  const stats = useMemo(
-    () => ({ active: aliases.filter((a) => a.is_active).length, ...deliverySummary(aliases) }),
-    [aliases]
-  );
+  // Ask the server again when the page, the search or the filter changes. A server
+  // that answered with every alias has nothing more to give, so that case is skipped.
+  const loadedOnce = useRef(false);
+  const paged = useRef(false);
+  paged.current = view.paged;
+  useEffect(() => {
+    if (loadedOnce.current && !paged.current) return;
+    loadedOnce.current = true;
+    loadAliases();
+  }, [ask, loadAliases]);
+
+  // Deleting the last row of the last page leaves that page empty: step back to a real one.
+  useEffect(() => {
+    if (view.page !== page) setPage(view.page);
+  }, [view.page, page]);
 
   // Makes an alias with no label. A row slides into the top of the list straight away
   // and scrambles while the request is out, so the click never feels like it waited.
@@ -506,19 +537,15 @@ export default function DashboardPage() {
   }, [generate]);
 
   const freshIds = useMemo(() => new Set(fresh.map((row) => row.alias?.id).filter(Boolean)), [fresh]);
-  const shown = useMemo(
-    () => filterAliases(aliases, query, status).filter((alias) => !freshIds.has(alias.id)),
-    [aliases, query, status, freshIds]
-  );
-  const total = aliases.filter((alias) => !freshIds.has(alias.id)).length + fresh.length;
-  // The whole list is already loaded, so paging only limits what is drawn. Totals,
-  // search and the status filter always work over every alias.
-  const view = paginate(shown, page, PAGE_SIZE);
-  const freshShown = view.page === 1 ? fresh : [];
+  const rows = view.rows.filter((alias) => !freshIds.has(alias.id));
+  const freshShown = page === 1 ? fresh : [];
+  // Rows still being created are not in the server's count yet.
+  const total = summary.count + fresh.filter((row) => !row.alias).length;
 
   async function handleToggle(alias) {
     try {
-      await api.updateAlias(alias.id, { is_active: !alias.is_active });
+      const updated = await api.updateAlias(alias.id, { is_active: !alias.is_active });
+      setFresh((list) => list.map((row) => (row.alias?.id === alias.id ? { ...row, alias: updated.alias } : row)));
       await loadAliases();
     } catch (err) {
       setError(err.message);
@@ -625,15 +652,15 @@ export default function DashboardPage() {
           <div>
             <p className="text-sm text-muted-foreground">Your aliases have forwarded</p>
             <p className="mt-2 font-display font-extrabold tracking-tight leading-none tabular-nums text-[clamp(2.75rem,5.5vw,4rem)]">
-              {stats.forwarded}
-              <span className="ml-3 font-body font-normal tracking-normal text-base text-muted-foreground">of {stats.received} emails</span>
+              {summary.forwarded}
+              <span className="ml-3 font-body font-normal tracking-normal text-base text-muted-foreground">of {summary.received} emails</span>
             </p>
             <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4">
               {[
-                ["Aliases", aliases.length],
-                ["Active", stats.active],
-                ["Paused", aliases.length - stats.active],
-                ["Not forwarded", stats.stopped],
+                ["Aliases", summary.count],
+                ["Active", summary.active],
+                ["Paused", summary.count - summary.active],
+                ["Not forwarded", summary.stopped],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -642,7 +669,7 @@ export default function DashboardPage() {
               ))}
             </dl>
           </div>
-          <DeliveryRing rate={stats.rate} />
+          <DeliveryRing rate={summary.rate} />
         </div>
       </section>
 
@@ -690,11 +717,11 @@ export default function DashboardPage() {
               ))}
             </div>
             <span className="ml-auto text-sm text-muted-foreground tabular-nums">
-              {shown.length + fresh.length} of {total}
+              {view.matching} of {summary.count}
             </span>
           </div>
 
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div aria-busy={fetching} className={`rounded-xl border border-border bg-card overflow-hidden transition-opacity duration-200 ${fetching && view.paged ? "opacity-60" : ""}`}>
             <div className={`hidden md:grid ${COLUMNS} items-center gap-x-4 px-5 h-10 border-b border-border text-xs text-muted-foreground`}>
               <span>Alias</span>
               <span>Status</span>
@@ -702,14 +729,14 @@ export default function DashboardPage() {
               <span>Expires</span>
               <span />
             </div>
-            {shown.length + fresh.length === 0 ? (
+            {rows.length + freshShown.length === 0 ? (
               <p className="px-5 py-10 text-center text-sm text-muted-foreground">No aliases match that search.</p>
             ) : (
               <ul>
                 {freshShown.map((row) => (
                   <AliasRow
                     key={`fresh-${row.key}`}
-                    alias={aliases.find((alias) => alias.id === row.alias?.id) || row.alias}
+                    alias={data.aliases.find((alias) => alias.id === row.alias?.id) || row.alias}
                     fresh={row}
                     now={now}
                     copied={copied}
@@ -719,7 +746,7 @@ export default function DashboardPage() {
                     onSettled={() => settle(row.key)}
                   />
                 ))}
-                {view.items.map((a) => (
+                {rows.map((a) => (
                   <AliasRow
                     key={a.id}
                     alias={a}
@@ -735,7 +762,7 @@ export default function DashboardPage() {
             {view.pages > 1 && (
               <nav aria-label="Pages" className="flex items-center justify-between gap-4 px-5 h-12 border-t border-border text-sm">
                 <span className="text-muted-foreground tabular-nums">
-                  {view.from}–{view.to} of {shown.length}
+                  {view.from}–{view.to} of {view.matching}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
