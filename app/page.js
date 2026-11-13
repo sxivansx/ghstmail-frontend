@@ -5,6 +5,25 @@ import Link from "next/link";
 import { mountLanding } from "./landing-effects";
 import "./landing.css";
 
+// Small line icons for the "what we keep" lists.
+const GLYPHS = {
+  box: "M21 8v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8m18 0l-2.4-4.2A1 1 0 0017.7 3H6.3a1 1 0 00-.9.8L3 8m18 0H3m6 4h6",
+  mail: "M3 6.5A1.5 1.5 0 014.5 5h15A1.5 1.5 0 0121 6.5v11a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 17.5v-11zM3.5 7l8.5 6 8.5-6",
+  tag: "M3 12.6V4a1 1 0 011-1h8.6a1 1 0 01.7.3l7.4 7.4a1 1 0 010 1.4l-8.6 8.6a1 1 0 01-1.4 0l-7.4-7.4a1 1 0 01-.3-.7zM7.5 7.5h.01",
+  reply: "M9 17l-5-5 5-5M4 12h11a5 5 0 015 5v2",
+  thread: "M5 9h14M5 15h14M10 4L8 20M16 4l-2 16",
+  server: "M4 5.5A1.5 1.5 0 015.5 4h13A1.5 1.5 0 0120 5.5v4a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 9.5v-4zM4 14.5A1.5 1.5 0 015.5 13h13a1.5 1.5 0 011.5 1.5v4a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-4zM7.5 7.5h.01M7.5 16.5h.01",
+  none: "M12 21a9 9 0 100-18 9 9 0 000 18zM5.6 5.6l12.8 12.8",
+};
+
+function Glyph({ d }) {
+  return (
+    <svg className="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  );
+}
+
 const CLI_SAMPLE = `<span class="c"># create an alias and copy it</span>
 <span class="k">$</span> ghstmail new github
 <span class="o">github.k7f2q@ghstmail.space</span>
@@ -136,24 +155,61 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="stage" id="stage">
-              <div className="track" aria-hidden="true"><div className="pkt" id="pkt"></div></div>
-              <div className="node">
-                <h3 data-site>Netflix</h3>
-                <span className="big">has on file<br /><span data-alias style={{ color: "var(--amber)" }}></span></span>
-                <div className="slot" id="slot-site"><b>Re: Confirm your email</b><span>from <span data-alias-short></span></span></div>
+            <div className="relay" id="stage">
+              <div className="relay-grid">
+                <div className="side">
+                  <header className="side-head">
+                    <span className="avatar" data-site-initial aria-hidden="true">N</span>
+                    <div>
+                      <h3 data-site>Netflix</h3>
+                      <p>What the site has</p>
+                    </div>
+                  </header>
+                  <dl className="fact">
+                    <dt>Email on file</dt>
+                    <dd className="on-file" data-alias></dd>
+                  </dl>
+                  <div className="mailbox">
+                    <div className="msg" data-on="in" data-role="from"><span className="dir">Sent</span><b>Confirm your email</b><span className="meta">to <span data-alias-short></span></span></div>
+                    <div className="msg" data-on="reply" data-role="to"><span className="dir">Received</span><b>Re: Confirm your email</b><span className="meta">from <span data-alias-short></span></span></div>
+                    <div className="msg" data-on="off" data-role="from"><span className="dir">Sent</span><b>Offers picked for you</b><span className="meta">to <span data-alias-short></span></span></div>
+                  </div>
+                </div>
+
+                <div className="wire" aria-hidden="true">
+                  <div className="track"><div className="pkt" id="pkt"></div></div>
+                  <div className="hub" id="mid">
+                    <svg><use href="#ghost"/></svg>
+                  </div>
+                  <span className="hub-text" id="mid-text">forwards, keeps no copy</span>
+                </div>
+
+                <div className="side">
+                  <header className="side-head">
+                    <span className="avatar you" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0116 0" /></svg>
+                    </span>
+                    <div>
+                      <h3>Your inbox</h3>
+                      <p>What you see</p>
+                    </div>
+                  </header>
+                  <dl className="fact">
+                    <dt>Your real email</dt>
+                    <dd className="hidden-addr">y••••@•••••.com</dd>
+                  </dl>
+                  <div className="mailbox">
+                    <div className="msg" data-on="in" data-role="to"><span className="dir">Inbox</span><b>Confirm your email</b><span className="meta">from <span data-site>Netflix</span>, via <span data-alias-short></span></span></div>
+                    <div className="msg" data-on="reply" data-role="from"><span className="dir">Sent</span><b>Re: Confirm your email</b><span className="meta">goes out as <span data-alias-short></span></span></div>
+                    <div className="msg quiet" data-on="off" data-role="to"><span className="dir">Inbox</span><b>Nothing arrives</b><span className="meta">the alias is gone</span></div>
+                  </div>
+                </div>
               </div>
-              <div className="node node-mid" id="mid">
-                <svg aria-hidden="true"><use href="#ghost"/></svg>
-                <p id="mid-text">forwards, keeps no copy</p>
-              </div>
-              <div className="node">
-                <h3>Your inbox</h3>
-                <span className="big hidden-addr">y••••@•••••.com<br /><span style={{ color: "var(--muted)" }}>only you and GhstMail know it</span></span>
-                <div className="slot" id="slot-inbox"><b>Confirm your email</b><span>to <span data-alias-short></span></span></div>
+              <div className="relay-foot">
+                <span className="step" id="step-no" aria-hidden="true">1</span>
+                <p className="caption" id="caption" aria-live="polite"></p>
               </div>
             </div>
-            <p className="caption" id="caption" aria-live="polite"></p>
           </div>
         </section>
 
@@ -283,31 +339,47 @@ export default function LandingPage() {
 
         <section className="band ledger" id="privacy">
           <div className="wrap">
-            <h2>What we keep, and what we don't</h2>
-            <p className="ledger-intro">A forwarding service has to know some things to work. Here is the list, taken from the privacy policy.</p>
-            <div className="cols">
+            <div className="ledger-head">
               <div>
-                <h3>Kept</h3>
-                <ul>
-                  <li>Your real email address<small>It is where your aliases forward to.</small></li>
-                  <li>Your aliases, their labels, and two counters<small>How many emails each one received and forwarded.</small></li>
-                  <li>The address of anyone who emails an alias<small>So your reply can reach them. Deleted when you delete the alias.</small></li>
-                  <li>Message-IDs of forwarded mail<small>So replies thread properly in your mail app.</small></li>
-                  <li>Server logs for fixing delivery and stopping abuse<small>Sender and recipient addresses and the connecting server&apos;s IP. Never content or subject lines.</small></li>
-                </ul>
+                <h2>What we keep, and what we don't</h2>
+                <p className="ledger-intro">A forwarding service has to know some things to work. This is the whole list, taken from the privacy policy.</p>
               </div>
-              <div className="never">
-                <h3>Never kept</h3>
-                <ul>
-                  <li>Message bodies and subject lines<small>Mail is processed in memory, forwarded and discarded. It never touches our database or disk.</small></li>
-                  <li>Your browsing history or web activity</li>
-                  <li>Analytics, fingerprints, telemetry</li>
-                  <li>Tracking or advertising cookies</li>
-                  <li>Your password or API keys in readable form</li>
-                </ul>
-              </div>
+              <Link className="btn btn-quiet btn-sm" href="/privacy">Read the privacy policy</Link>
             </div>
-            <p className="ledger-foot"><Link href="/privacy">Read the full privacy policy</Link></p>
+            <div className="ledger-grid">
+              <article className="vault">
+                <header>
+                  <span className="vault-icon"><Glyph d={GLYPHS.box} /></span>
+                  <div>
+                    <h3>Kept</h3>
+                    <p>What forwarding needs, and for how long.</p>
+                  </div>
+                </header>
+                <ul>
+                  <li><Glyph d={GLYPHS.mail} /><div><b>Your real email address</b><small>It is where your aliases forward to.</small></div><em>until you delete your account</em></li>
+                  <li><Glyph d={GLYPHS.tag} /><div><b>Your aliases, their labels, and two counters</b><small>How many emails each one received and forwarded.</small></div><em>until you delete them</em></li>
+                  <li><Glyph d={GLYPHS.reply} /><div><b>The address of anyone who emails an alias</b><small>So your reply can reach them.</small></div><em>until the alias is deleted</em></li>
+                  <li><Glyph d={GLYPHS.thread} /><div><b>Message-IDs of forwarded mail</b><small>So replies thread properly in your mail app.</small></div><em>until the alias is deleted</em></li>
+                  <li><Glyph d={GLYPHS.server} /><div><b>Server logs for fixing delivery and stopping abuse</b><small>Sender and recipient addresses and the connecting server&apos;s IP. Never content or subject lines.</small></div></li>
+                </ul>
+              </article>
+              <article className="vault never">
+                <header>
+                  <span className="vault-icon"><Glyph d={GLYPHS.none} /></span>
+                  <div>
+                    <h3>Never kept</h3>
+                    <p>What a forwarder could take, and we don't.</p>
+                  </div>
+                </header>
+                <ul>
+                  <li><Glyph d={GLYPHS.none} /><div><b>Message bodies and subject lines</b><small>Mail is processed in memory, forwarded and discarded. It never touches our database or disk.</small></div></li>
+                  <li><Glyph d={GLYPHS.none} /><div><b>Your browsing history or web activity</b></div></li>
+                  <li><Glyph d={GLYPHS.none} /><div><b>Analytics, fingerprints, telemetry</b></div></li>
+                  <li><Glyph d={GLYPHS.none} /><div><b>Tracking or advertising cookies</b></div></li>
+                  <li><Glyph d={GLYPHS.none} /><div><b>Your password or API keys in readable form</b><small>Stored only as hashes, so we cannot read them back.</small></div></li>
+                </ul>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -325,6 +397,7 @@ export default function LandingPage() {
           <a className="brand" href="#top" style={{ fontSize: "1rem" }}><svg aria-hidden="true" style={{ width: 20, height: 20 }}><use href="#ghost"/></svg>GhstMail</a>
           <Link href="/docs">Docs</Link>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/changelog">Changelog</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/refunds">Refunds</Link>

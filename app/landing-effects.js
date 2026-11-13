@@ -40,6 +40,7 @@ export function mountLanding(root) {
     $$("[data-alias]").forEach((e) => (e.textContent = address()));
     $$("[data-alias-short]").forEach((e) => (e.textContent = `${label}.${tail}@…`));
     $$("[data-site]").forEach((e) => (e.textContent = label.charAt(0).toUpperCase() + label.slice(1)));
+    $$("[data-site-initial]").forEach((e) => (e.textContent = label.charAt(0).toUpperCase()));
   }
   on(site, "input", () => { label = slugLabel(site.value); render(label.length + 1); });
   // Turn an element's text to embers, one character at a time.
@@ -318,7 +319,9 @@ export function mountLanding(root) {
 
   // Relay diagram.
   const stage = $("#stage"), pkt = $("#pkt"), mid = $("#mid"), cap = $("#caption");
-  const slotSite = $("#slot-site"), slotInbox = $("#slot-inbox"), midText = $("#mid-text");
+  const midText = $("#mid-text"), stepNo = $("#step-no"), mails = $$(".msg");
+  // The message on each side for a scene: `from` is the one who sends it, `to` the one who gets it.
+  const mail = (scene, role) => mails.find((m) => m.dataset.on === scene && m.dataset.role === role);
   const captions = {
     in: "The site writes to the alias. GhstMail rewrites the headers and forwards the message to you. It is not written to disk on the way through.",
     reply: "You hit reply in your normal mail app. The message goes out signed as the alias, so the site still has no idea what your real email is.",
@@ -341,7 +344,11 @@ export function mountLanding(root) {
       b.firstElementChild.getAnimations().forEach((a) => a.cancel());
       if (on && !calm) b.firstElementChild.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: name === "off" ? 5000 : 4950, fill: "forwards" });
     });
-    slotSite.classList.remove("on"); slotInbox.classList.remove("on");
+    mails.forEach((m) => m.classList.remove("waiting", "arrived"));
+    // The sender already has their copy. The other side is still waiting for it.
+    mail(name, "from").classList.add("arrived");
+    mail(name, "to").classList.add("waiting");
+    stepNo.textContent = order.indexOf(name) + 1;
     mid.classList.toggle("off", name === "off");
     midText.textContent = name === "off" ? "alias burned" : "forwards, keeps no copy";
     cap.textContent = captions[name];
@@ -350,15 +357,16 @@ export function mountLanding(root) {
     if (name === "in") {
       await fly(0, .5, ""); if (me !== run) return;
       await fly(.5, 1, "private"); if (me !== run) return;
-      slotInbox.classList.add("on");
+      mail(name, "to").classList.replace("waiting", "arrived");
     } else if (name === "reply") {
       await fly(1, .5, "private"); if (me !== run) return;
       await fly(.5, 0, ""); if (me !== run) return;
-      slotSite.classList.add("on");
+      mail(name, "to").classList.replace("waiting", "arrived");
     } else {
       await fly(0, .5, ""); if (me !== run) return;
       pkt.className = "pkt stopped";
       await wait(900); if (me !== run) return;
+      mail(name, "to").classList.replace("waiting", "arrived");
     }
     pkt.style.opacity = 0;
     if (calm) { idle = true; return; }
