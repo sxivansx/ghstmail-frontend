@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { LegalPage, Section } from "@/components/legal-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/terms",
   title: "Terms of Service",
   description: "The terms for using GhstMail, the email alias service.",
-};
+});
 
 export default function TermsPage() {
   return (

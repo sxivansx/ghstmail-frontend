@@ -11,7 +11,7 @@ GhstMail is a privacy-first disposable email alias service. This repo is the **f
 - `npm run dev` — start dev server
 - `npm run build` — production build
 - `npm run start` — serve production build
-- `npm test` — tests for `lib/api.js`, using Node's built-in runner
+- `npm test` — tests for the helpers in `lib/`, using Node's built-in runner
 
 No linter is configured.
 
@@ -27,10 +27,10 @@ No linter is configured.
 
 `lib/api.js` targets `/api/*` only. The Better Auth calls (`socialSignIn`, `exchangeSession`, `requestPasswordReset`, `resetPassword`) go to `/api/auth/*` with `credentials: "include"` and never send the JWT; those routes return `{ message }` rather than `{ error }`. Do not repoint it at `/v1`: `lib/api.js` does `throw new Error(data.error || ...)`, which expects `error` to be a string, so every `/v1` failure would surface as `[object Object]`. CORS is also deliberately disabled on `/v1` so a browser cannot hold an API key.
 
-**Auth flow:** Token-based. Login/register pages call `api.login`/`api.register`, store the JWT via `setToken()`. The dashboard layout checks for the token on mount and redirects to `/login` if missing. The landing page redirects to `/dashboard` if a token exists.
+**Auth flow:** Token-based. Login/register pages call `api.login`/`api.register`, store the JWT via `setToken()`. The dashboard layout checks for the token on mount and redirects to `/login` if missing. The landing page redirects to `/dashboard` if a token exists: an inline script in `app/page.js` does it before paint on a full load, and an effect in `app/landing-page.js` covers client-side navigation.
 
 **Pages** (client components via `"use client"` unless marked server):
-- `/` — marketing landing page. Styled by `app/landing.css` (plain CSS, every rule scoped under `.lp`) rather than Tailwind. The demos (alias maker, relay diagram, extension tour, headline fire) are driven by `app/landing-effects.js`, which `page.js` mounts in one effect; the pure helpers live in `lib/landing-demo.js` and are tested. Avoid class names that are also Tailwind utilities (`ring` bit once).
+- `/` — marketing landing page. `app/page.js` is a server component (metadata, JSON-LD, the signed-in redirect script) that renders the client component `app/landing-page.js`. Keep the landing markup server-rendered: do not gate it behind client state, or crawlers get an empty page. Styled by `app/landing.css` (plain CSS, every rule scoped under `.lp`) rather than Tailwind. The demos (alias maker, relay diagram, extension tour, headline fire) are driven by `app/landing-effects.js`, which `landing-page.js` mounts in one effect; the pure helpers live in `lib/landing-demo.js` and are tested. Avoid class names that are also Tailwind utilities (`ring` bit once).
 - `/docs` — **server component.** Public API reference. Code samples are highlighted at render time by `app/docs/highlight.js`, a small hand-written tokenizer, so the only client JS is three small components: `code-block.js` (copy button), `components/section-nav.jsx` (marks the section you are reading, shared with the legal pages) and `try-it.js` (the self-typing sample request in the hero, which sends nothing). Do not add a dependency for this.
 - `/pricing` — plans
 - `/login`, `/register` — auth forms, with Google/GitHub buttons from `components/social-sign-in.jsx` when `NEXT_PUBLIC_AUTH_PROVIDERS` lists them
@@ -45,8 +45,10 @@ No linter is configured.
 
 Server components are server components because they export `metadata` for SEO and need no interactivity.
 
+**SEO:** `lib/seo.js` holds `SITE_URL` (`https://www.ghstmail.space`, the root layout's `metadataBase`) and `pageMetadata({ path, title, description })`, which every public page uses for its canonical URL and Open Graph tags. Use it for any new public page: a page that sets its own `openGraph` by hand loses the site image. `app/robots.js` and `app/sitemap.js` generate robots.txt and sitemap.xml; add new public pages to the sitemap list. Account pages get `X-Robots-Tag: noindex` from `next.config.js` and must not be disallowed in robots.txt, or crawlers never see the noindex. `public/llms.txt` summarises the product for AI assistants; keep it in step with the site.
+
 **UI components:** `components/ui/` contains shadcn/ui primitives (Button, Card, Input, Badge, etc.). `components/site-header.jsx` is the top bar shared by docs, pricing, privacy and the auth pages. Inline SVG icons are used throughout instead of an icon library — each page defines its own icon components.
 
-**Styling:** Dark mode only (`<html className="dark">`). Uses CSS variables for theming (defined in `globals.css`). Custom fonts: Bricolage Grotesque (display/headings), Outfit (body) and Martian Mono (addresses and code), loaded by the `@import` at the top of `globals.css`. Custom animations for fade-up and glow effects defined in `tailwind.config.js`.
+**Styling:** Dark mode only (`<html className="dark">`). Uses CSS variables for theming (defined in `globals.css`). Custom fonts: Bricolage Grotesque (display/headings), Outfit (body) and Martian Mono (addresses and code), self-hosted with `next/font` in `app/layout.js` and exposed as `--font-bricolage`, `--font-outfit` and `--font-martian`, which `tailwind.config.js` and `landing.css` use. Do not add a Google Fonts `@import`. Custom animations for fade-up and glow effects defined in `tailwind.config.js`.
 
 **Import aliases:** `@/components`, `@/lib`, `@/hooks` (configured in `jsconfig.json`).

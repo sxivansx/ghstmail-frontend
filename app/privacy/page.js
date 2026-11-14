@@ -1,9 +1,11 @@
 import { LegalPage, Section } from "@/components/legal-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/privacy",
   title: "Privacy Policy",
   description: "What GhstMail stores, what it never stores, and how long it keeps things.",
-};
+});
 
 const strong = "text-foreground";
 const sub = "font-display font-semibold text-[1.05rem] text-foreground pt-3";
