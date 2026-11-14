@@ -1,4 +1,15 @@
 import LandingPage from "./landing-page";
+import { pageMetadata, TAGLINE } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  path: "/",
+  title: { absolute: "GhstMail — Disposable Email Aliases & Private Forwarding" },
+  description:
+    "Give every site its own email alias that forwards to your real inbox. Reply anonymously, block spam by domain, and switch off any alias that leaks. Free.",
+  ogTitle: TAGLINE,
+  ogDescription:
+    "Generate disposable email aliases that forward to your inbox. Reply anonymously. Block spam. Stay invisible.",
+});
 
 // The session token lives in localStorage, which the server cannot see, so the
 // signed-in redirect has to run in the browser. It runs before the landing page

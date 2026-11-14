@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { releases, formatReleaseDate } from "@/lib/changelog";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/changelog",
   title: "Changelog",
-  description: "What has changed in GhstMail, newest first.",
-};
+  description:
+    "What has changed in GhstMail, newest first: the dashboard, the Chrome extension, the API and CLI, and your account.",
+});
 
 export default function ChangelogPage() {
   return (

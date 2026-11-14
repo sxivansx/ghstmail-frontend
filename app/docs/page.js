@@ -5,18 +5,17 @@ import { highlight } from "./highlight";
 import { CopyButton } from "./code-block";
 import { TryIt } from "./try-it";
 import { splitEndpoint } from "@/lib/docs-format";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/docs",
   title: "API Reference",
   description:
     "The GhstMail API. Create disposable email aliases, block senders by domain, and check delivery, from your own code or the command line.",
-  openGraph: {
-    title: "GhstMail API Reference",
-    description:
-      "Create disposable email aliases from your own code. REST, API keys, idempotent writes, and a zero-dependency CLI.",
-    url: "https://ghstmail.space/docs",
-  },
-};
+  ogTitle: "GhstMail API Reference",
+  ogDescription:
+    "Create disposable email aliases from your own code. REST, API keys, idempotent writes, and a zero-dependency CLI.",
+});
 
 /* Code blocks are pre-formatted strings so nothing has to be escaped inline. */
 

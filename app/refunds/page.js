@@ -1,9 +1,11 @@
 import { LegalPage, Section } from "@/components/legal-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/refunds",
   title: "Refund Policy",
   description: "How cancelling and refunds work for GhstMail paid plans.",
-};
+});
 
 export default function RefundsPage() {
   return (

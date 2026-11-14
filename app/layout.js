@@ -1,26 +1,28 @@
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SITE_NAME, SITE_URL, TAGLINE } from "@/lib/seo";
 
+// Defaults for every page. Public pages override these with pageMetadata()
+// from lib/seo.js, which adds their canonical URL and their own social tags.
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "GhstMail — Disposable Email Aliases | Privacy-First Email Forwarding",
+    default: "GhstMail — Disposable Email Aliases & Private Forwarding",
     template: "%s — GhstMail",
   },
   description:
-    "Generate disposable email aliases that forward to your real inbox. Reply anonymously without exposing your identity. Block spam by domain. Free, private, no tracking.",
+    "Give every site its own email alias that forwards to your real inbox. Reply anonymously, block spam by domain, and switch off any alias that leaks. Free.",
   openGraph: {
-    title: "GhstMail — Your email, invisible.",
+    title: TAGLINE,
     description:
       "Generate disposable email aliases that forward to your inbox. Reply anonymously. Block spam. Stay invisible.",
-    url: "https://ghstmail.space",
-    siteName: "GhstMail",
+    siteName: SITE_NAME,
     type: "website",
   },
+  // No title or description here: X falls back to each page's og:title and
+  // og:description, so shared links describe the page that was shared.
   twitter: {
     card: "summary_large_image",
-    title: "GhstMail — Your email, invisible.",
-    description:
-      "Disposable email aliases that forward to your inbox. Reply anonymously. Block spam. Free forever.",
   },
 };
 

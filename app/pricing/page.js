@@ -3,11 +3,13 @@ import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
+  path: "/pricing",
   title: "Pricing",
   description: "GhstMail is free forever. Unlimited aliases, anonymous replies, spam filters, and Chrome extension included.",
-};
+});
 
 function CheckIcon({ className }) {
   return (
