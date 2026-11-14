@@ -46,10 +46,11 @@ module.exports = {
         "4xl": "0.7rem",
       },
       fontFamily: {
-        sans: ["Outfit", "system-ui", "sans-serif"],
-        display: ["Bricolage Grotesque", "system-ui", "sans-serif"],
-        body: ["Outfit", "system-ui", "sans-serif"],
-        mono: ["Martian Mono", "ui-monospace", "monospace"],
+        // The variables are set on <html> by next/font in app/layout.js.
+        sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
+        display: ["var(--font-bricolage)", "system-ui", "sans-serif"],
+        body: ["var(--font-outfit)", "system-ui", "sans-serif"],
+        mono: ["var(--font-martian)", "ui-monospace", "monospace"],
       },
       animation: {
         "fade-up": "fadeUp 0.6s ease-out forwards",

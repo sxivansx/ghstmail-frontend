@@ -1,5 +1,5 @@
 @property --p { syntax: "<number>"; inherits: true; initial-value: 0; }
-.lp { --ink: #0b0a08; --surface: #14120e; --raised: #1b1813; --line: #2b271f; --line-soft: #1f1c16; --bone: #efe9dc; --muted: #a8a090; --amber: #e8b730; --amber-ink: #2a1f06; --spectral: #a9bccd; --stop: #e8735a; --display: "Bricolage Grotesque", system-ui, sans-serif; --body: "Outfit", system-ui, sans-serif; --mono: "Martian Mono", ui-monospace, monospace; --gutter: clamp(20px, 5.5vw, 120px); --ease: cubic-bezier(.2, .7, .2, 1); }
+.lp { --ink: #0b0a08; --surface: #14120e; --raised: #1b1813; --line: #2b271f; --line-soft: #1f1c16; --bone: #efe9dc; --muted: #a8a090; --amber: #e8b730; --amber-ink: #2a1f06; --spectral: #a9bccd; --stop: #e8735a; --display: var(--font-bricolage), system-ui, sans-serif; --body: var(--font-outfit), system-ui, sans-serif; --mono: var(--font-martian), ui-monospace, monospace; --gutter: clamp(20px, 5.5vw, 120px); --ease: cubic-bezier(.2, .7, .2, 1); }
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
 .lp { min-height: 100vh; isolation: isolate; background: var(--ink); color: var(--bone); font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; overflow-x: clip; }
 .lp ::selection { background: rgba(232, 183, 48, .28); color: #fff3cf; }
