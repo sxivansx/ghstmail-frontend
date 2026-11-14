@@ -1,0 +1,31 @@
+# GhstMail
+
+> GhstMail gives each site you sign up for its own email alias and forwards the mail to your real inbox. You can reply from the alias without revealing your address, block senders by domain across every alias, set an alias to expire, and switch off any alias that starts getting spam. It is free, with unlimited aliases.
+
+How it works:
+
+- An alias looks like `github.k7f2q@ghstmail.space`. Mail sent to it is forwarded to your real address.
+- Replies you send go out from the alias, so the site never sees your real email.
+- Because each alias goes to one site, spam on an alias shows which site leaked it.
+- Message bodies and subject lines are processed in memory and never stored. There are no analytics, tracking or advertising cookies.
+
+## Product
+
+- [Home](https://www.ghstmail.space/): what GhstMail does, with a live demo
+- [Pricing](https://www.ghstmail.space/pricing): free, unlimited aliases, no card
+- [Create an account](https://www.ghstmail.space/register)
+- [Chrome extension](https://chromewebstore.google.com/detail/ghstmail/ejnaojhagohicodfhmgehnhmmahjohbj): adds a button to email fields that creates an alias named after the site and fills it in
+- [Changelog](https://www.ghstmail.space/changelog): what has shipped, newest first
+
+## Developers
+
+- [API reference](https://www.ghstmail.space/docs): REST API at `https://api.ghstmail.space/v1`, authenticated with scoped API keys (`Authorization: Bearer <key>`). Create, list, update and delete aliases, add domain filters, send mail from an alias, and read the account.
+- [OpenAPI spec](https://api.ghstmail.space/v1/openapi.json)
+- CLI: `npm install -g ghstmail`, then `ghstmail new github` creates an alias and copies it to the clipboard.
+
+## Policies
+
+- [Privacy policy](https://www.ghstmail.space/privacy): exactly what is stored, what is never stored, and for how long
+- [Terms of service](https://www.ghstmail.space/terms)
+- [Refund policy](https://www.ghstmail.space/refunds)
+- Support: support@ghstmail.space
