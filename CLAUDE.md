@@ -11,7 +11,7 @@ GhstMail is a privacy-first disposable email alias service. This repo is the **f
 - `npm run dev` — start dev server
 - `npm run build` — production build
 - `npm run start` — serve production build
-- `npm test` — tests for `lib/api.js`, using Node's built-in runner
+- `npm test` — tests for the helpers in `lib/`, using Node's built-in runner
 
 No linter is configured.
 
