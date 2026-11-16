@@ -33,10 +33,10 @@ function CheckIcon({ className }) {
   );
 }
 
-function TrashIcon({ className }) {
+function FlameIcon({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" />
     </svg>
   );
 }
@@ -213,7 +213,10 @@ function CreateModal({ open, onClose, onCreated }) {
 
 /* --- Alias card --- */
 
-const COLUMNS = "md:grid-cols-[minmax(0,1fr)_112px_210px_112px_36px]";
+const COLUMNS = "md:grid-cols-[minmax(0,1fr)_112px_210px_112px_82px]";
+// How long the fire takes to cross a row, then how long the row takes to close up.
+const BURN_MS = 950;
+const CLOSE_MS = 320;
 const PAGE_SIZE = 25;
 const KBD = "hidden lg:inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-muted px-1 font-mono text-[10px] text-muted-foreground";
 
@@ -259,7 +262,13 @@ function DeliveryRing({ rate }) {
 // A row in the list. A row that was just generated passes `fresh`: it slides open
 // like a slip coming out of a printer, shows the address resolving, then glows green
 // for a few seconds once it has been created and copied.
-function AliasRow({ alias, fresh, now, copied, onCopy, onToggle, onDelete, onSettled }) {
+const EMBERS = Array.from({ length: 11 }, (_, i) => ({
+  left: 4 + i * 9,
+  delay: Math.round((BURN_MS * (4 + i * 9)) / 108),
+  drift: (i % 3) * 7 - 7,
+}));
+
+function AliasRow({ alias, fresh, burning, now, copied, onCopy, onToggle, onDelete, onSettled }) {
   const a = alias;
   const making = fresh && fresh.status !== "done";
   const [open, setOpen] = useState(!fresh);
@@ -282,6 +291,17 @@ function AliasRow({ alias, fresh, now, copied, onCopy, onToggle, onDelete, onSet
     return () => clearTimeout(timer);
   }, [fresh?.status]);
 
+  useEffect(() => {
+    if (!burning) {
+      if (!fresh) setOpen(true);
+      return;
+    }
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = setTimeout(() => setOpen(false), calm ? 0 : BURN_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [burning]);
+
   const expiry = making ? "Never" : expiryLabel(a.expires_at, now);
   const rate = making ? null : forwardRate(a);
   const active = making ? true : a.is_active;
@@ -292,10 +312,17 @@ function AliasRow({ alias, fresh, now, copied, onCopy, onToggle, onDelete, onSet
       className="grid border-t border-border first:border-t-0 transition-[grid-template-rows] duration-300 ease-out"
       style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
     >
-      <div className="min-h-0 overflow-hidden">
+      <div className={`burn-row min-h-0 overflow-hidden ${burning ? "is-burning" : ""}`}>
+        {burning && (
+          <span className="burn-embers" aria-hidden="true">
+            {EMBERS.map((ember) => (
+              <i key={ember.left} style={{ left: `${ember.left}%`, "--delay": `${ember.delay}ms`, "--drift": `${ember.drift}px` }} />
+            ))}
+          </span>
+        )}
         <div
-          className={`group grid ${COLUMNS} items-center gap-x-4 gap-y-3 px-5 py-3.5 transition-[background-color,box-shadow,opacity,transform] duration-700 ${
-            open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3"
+          className={`burn-content group grid ${COLUMNS} items-center gap-x-4 gap-y-3 px-5 py-3.5 transition-[background-color,box-shadow,opacity,transform] duration-700 ${
+            open || burning ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3"
           } ${
             glow
               ? "bg-emerald-500/[0.07] shadow-[inset_2px_0_0_rgb(16_185_129)]"
@@ -386,10 +413,11 @@ function AliasRow({ alias, fresh, now, copied, onCopy, onToggle, onDelete, onSet
             ) : (
               <button
                 onClick={() => onDelete(a)}
-                aria-label={`Delete ${a.address}`}
-                className="ml-auto md:ml-0 p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
+                aria-label={`Burn ${a.address}`}
+                className="burn-button ml-auto md:ml-0 md:justify-self-end inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-lg border border-transparent text-sm font-medium text-muted-foreground md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
               >
-                <TrashIcon className="w-4 h-4" />
+                <FlameIcon className="w-4 h-4" />
+                Burn
               </button>
             )}
           </div>
@@ -419,6 +447,8 @@ export default function DashboardPage() {
   // Rows made with "Instant alias" this visit, newest first. They stay pinned to the top.
   const [fresh, setFresh] = useState([]);
   const [deleting, setDeleting] = useState(null);
+  // The alias whose row is on fire right now.
+  const [burning, setBurning] = useState(null);
   const [page, setPage] = useState(1);
   const freshKey = useRef(0);
   const generating = useRef(false);
@@ -552,16 +582,28 @@ export default function DashboardPage() {
     }
   }
 
-  async function confirmDelete() {
+  function confirmDelete() {
     const { id } = deleting;
+    setDeleting(null);
+    burn(id);
+  }
+
+  // The row burns while the request is out. If the server refuses, the fire is
+  // called off and the row comes back with the reason shown above the table.
+  async function burn(id) {
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setBurning(id);
     try {
-      await api.deleteAlias(id);
+      await Promise.all([
+        api.deleteAlias(id),
+        new Promise((resolve) => setTimeout(resolve, calm ? 0 : BURN_MS + CLOSE_MS)),
+      ]);
       setFresh((rows) => rows.filter((row) => row.alias?.id !== id));
       await loadAliases();
     } catch (err) {
       setError(err.message);
     }
-    setDeleting(null);
+    setBurning(null);
   }
   const cancelDelete = useCallback(() => setDeleting(null), []);
 
@@ -743,6 +785,7 @@ export default function DashboardPage() {
                     onCopy={copyAddress}
                     onToggle={handleToggle}
                     onDelete={setDeleting}
+                    burning={burning !== null && burning === row.alias?.id}
                     onSettled={() => settle(row.key)}
                   />
                 ))}
@@ -755,6 +798,7 @@ export default function DashboardPage() {
                     onCopy={copyAddress}
                     onToggle={handleToggle}
                     onDelete={setDeleting}
+                    burning={burning !== null && burning === a.id}
                   />
                 ))}
               </ul>
@@ -800,8 +844,9 @@ export default function DashboardPage() {
 
       <ConfirmDialog
         open={Boolean(deleting)}
-        title="Delete this alias?"
-        confirmLabel="Delete alias"
+        title="Burn this alias?"
+        confirmLabel="Burn it"
+        tone="burn"
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       >
