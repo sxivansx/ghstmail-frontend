@@ -1,14 +1,8 @@
 "use client";
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { ENABLED_PROVIDERS } from "@/lib/sign-in-errors";
 import { Button } from "@/components/ui/button";
-
-// Which providers the backend has credentials for, e.g. "google,github".
-// Unset means none, so a provider never shows a button that cannot work.
-const ENABLED = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS || "")
-  .split(",")
-  .map((p) => p.trim())
-  .filter(Boolean);
 
 function GoogleIcon({ className }) {
   return (
@@ -37,7 +31,7 @@ const PROVIDERS = {
 export function SocialSignIn({ nextPath }) {
   const [pending, setPending] = useState(null);
   const [error, setError] = useState("");
-  const providers = ENABLED.filter((id) => PROVIDERS[id]);
+  const providers = ENABLED_PROVIDERS.filter((id) => PROVIDERS[id]);
 
   if (providers.length === 0) return null;
 
@@ -89,18 +83,4 @@ export function SocialSignIn({ nextPath }) {
       </div>
     </div>
   );
-}
-
-// Better Auth sends people back to /login?error=<code> when a provider
-// sign-in fails. These are the codes a person can do something about.
-const SIGN_IN_ERRORS = {
-  account_not_linked:
-    "An account with this email already exists. Sign in with your password, confirm your email from the link we sent, then try again.",
-  access_denied: "Sign-in was cancelled.",
-  email_not_found: "That account did not share an email address with us.",
-};
-
-export function socialSignInError(code) {
-  if (!code) return "";
-  return SIGN_IN_ERRORS[code.toLowerCase()] || "Could not sign you in with that account. Try again.";
 }

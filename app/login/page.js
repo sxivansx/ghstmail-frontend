@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { SocialSignIn, socialSignInError } from "@/components/social-sign-in";
+import { SocialSignIn } from "@/components/social-sign-in";
+import { socialSignInError } from "@/lib/sign-in-errors";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
