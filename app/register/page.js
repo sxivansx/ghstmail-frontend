@@ -17,6 +17,10 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // The address a confirmation link went to. Set once the account exists but
+  // cannot be used until that link is followed.
+  const [sentTo, setSentTo] = useState("");
+  const [resend, setResend] = useState("idle");
   const router = useRouter();
   // Preserve ?next= across the login/register hop.
   const [nextSuffix, setNextSuffix] = useState("");
@@ -35,12 +39,27 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const data = await api.register(email, password);
+      if (data.verification_required) {
+        setSentTo(data.email);
+        return;
+      }
       setToken(data.token);
       router.push(safeNextPath("/dashboard"));
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setResend("sending");
+    try {
+      await api.resendConfirmation(sentTo);
+      setResend("sent");
+    } catch (err) {
+      setError(err.message);
+      setResend("idle");
     }
   }
 
@@ -53,12 +72,30 @@ export default function RegisterPage() {
         <main className="flex-1 flex items-center justify-center px-4 pb-16">
           <div className="w-full max-w-sm">
             <div className="opacity-0 animate-fade-up text-center mb-14">
-              <h1 className="font-display font-bold text-3xl tracking-tight">Go invisible</h1>
+              <h1 className="font-display font-bold text-3xl tracking-tight">{sentTo ? "Check your inbox" : "Go invisible"}</h1>
             </div>
 
             <div className="relative">
               <PeekingGhost />
               <Card className="opacity-0 animate-fade-up-delay-1 bg-card/50 backdrop-blur-sm">
+                {sentTo ? (
+                <CardContent className="pt-6 space-y-4 text-center">
+                  <p className="text-sm text-muted-foreground">We sent a confirmation link to</p>
+                  <p className="font-mono text-sm break-all">{sentTo}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Open it to finish creating your account. The link signs you in, so you can close this tab.
+                  </p>
+                  {error && (
+                    <div role="alert" className="px-4 py-3 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm text-left">
+                      {error}
+                    </div>
+                  )}
+                  <Button type="button" variant="outline" className="w-full" disabled={resend !== "idle"} onClick={handleResend}>
+                    {resend === "sent" ? "Sent again" : resend === "sending" ? "Sending..." : "Send it again"}
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">Nothing after a minute? Look in spam, or check the address above.</p>
+                </CardContent>
+                ) : (
                 <CardContent className="pt-6 space-y-4">
                   <SocialSignIn nextPath={nextPath} />
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,6 +144,7 @@ export default function RegisterPage() {
                     </p>
                   </form>
                 </CardContent>
+                )}
               </Card>
             </div>
 

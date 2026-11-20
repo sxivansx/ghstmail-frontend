@@ -1,8 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { clearToken } from "../../lib/api";
+import { emailFromToken } from "../../lib/dashboard-format";
 
 function GhostIcon({ className }) {
   return (
@@ -68,9 +69,38 @@ function LogoutIcon({ className }) {
   );
 }
 
+function Avatar({ email }) {
+  return (
+    <span aria-hidden="true" className="flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-semibold uppercase">
+      {email ? email[0] : <GhostIcon className="w-4 h-4" />}
+    </span>
+  );
+}
+
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const [email, setEmail] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    setEmail(emailFromToken(localStorage.getItem("ghstmail_token")));
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e) => {
+      if (e.type === "keydown" ? e.key === "Escape" : !menuRef.current?.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!localStorage.getItem("ghstmail_token")) {
@@ -125,6 +155,15 @@ export default function DashboardLayout({ children }) {
           })}
         </nav>
         <div className="mt-auto flex flex-col gap-0.5 border-t border-border pt-3">
+          {email && (
+            <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
+              <Avatar email={email} />
+              <div className="min-w-0">
+                <p className="text-[11px] leading-4 text-muted-foreground">Signed in as</p>
+                <p className="text-sm leading-5 truncate" title={email}>{email}</p>
+              </div>
+            </div>
+          )}
           <Link href="/docs" className={`flex items-center gap-3 px-3 h-9 rounded-lg text-sm transition-colors ${linkTone(false)}`}>
             <BookIcon className="w-4 h-4" />
             API docs
@@ -162,10 +201,31 @@ export default function DashboardLayout({ children }) {
               );
             })}
           </nav>
-          <button onClick={handleLogout} title="Sign out" className={`flex items-center px-2.5 h-9 rounded-lg transition-colors ${linkTone(false)}`}>
-            <LogoutIcon className="w-4 h-4" />
-            <span className="sr-only">Sign out</span>
-          </button>
+          <div ref={menuRef} className="relative ml-1">
+            <button
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-muted transition-colors"
+            >
+              <Avatar email={email} />
+              <span className="sr-only">Account</span>
+            </button>
+            {menuOpen && (
+              <div role="menu" className="absolute right-0 top-11 w-64 rounded-xl border border-border bg-card p-1.5 shadow-xl shadow-black/40">
+                {email && (
+                  <div className="px-2.5 pt-1.5 pb-2.5 mb-1.5 border-b border-border">
+                    <p className="text-[11px] leading-4 text-muted-foreground">Signed in as</p>
+                    <p className="text-sm leading-5 break-all">{email}</p>
+                  </div>
+                )}
+                <button role="menuitem" onClick={handleLogout} className={`flex w-full items-center gap-3 px-2.5 h-9 rounded-lg text-sm text-left transition-colors ${linkTone(false)}`}>
+                  <LogoutIcon className="w-4 h-4" />
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </header>
 
         <main role="main" className="max-w-[1080px] mx-auto px-5 sm:px-8 py-8 lg:py-10">{children}</main>

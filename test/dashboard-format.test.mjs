@@ -141,3 +141,38 @@ test("resolveAliasPage reports the last real page when the one asked for is now 
   assert.deepEqual({ page: view.page, pages: view.pages, from: view.from, to: view.to }, { page: 2, pages: 2, from: 0, to: 0 });
   assert.equal(view.summary.rate, null);
 });
+
+const { hasAnyAlias, emailFromToken } = await import("../lib/dashboard-format.js");
+
+test("hasAnyAlias is false for a new account with nothing being made", () => {
+  assert.equal(hasAnyAlias(0, []), false);
+});
+
+test("hasAnyAlias counts a first alias that is still being made", () => {
+  assert.equal(hasAnyAlias(0, [{ key: 1, status: "pending" }]), true);
+});
+
+test("hasAnyAlias still counts a first alias once the server has answered but the list has not reloaded", () => {
+  assert.equal(hasAnyAlias(0, [{ key: 1, status: "resolving", alias: { id: "a" } }]), true);
+});
+
+test("hasAnyAlias is true when the server already lists aliases", () => {
+  assert.equal(hasAnyAlias(3, []), true);
+});
+
+const tokenFor = (payload) => `h.${Buffer.from(JSON.stringify(payload)).toString("base64url")}.s`;
+
+test("emailFromToken reads the email out of the session token", () => {
+  assert.equal(emailFromToken(tokenFor({ id: "u1", email: "sam@example.com" })), "sam@example.com");
+});
+
+test("emailFromToken copes with characters outside ASCII", () => {
+  assert.equal(emailFromToken(tokenFor({ email: "zoë@example.com" })), "zoë@example.com");
+});
+
+test("emailFromToken gives an empty string for a missing or broken token", () => {
+  assert.equal(emailFromToken(null), "");
+  assert.equal(emailFromToken("sample-session"), "");
+  assert.equal(emailFromToken("a.%%%.c"), "");
+  assert.equal(emailFromToken(tokenFor({ id: "u1" })), "");
+});

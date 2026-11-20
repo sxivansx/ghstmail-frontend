@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { api } from "../../lib/api";
-import { expiryLabel, forwardRate, scrambleFrame, aliasQuery, resolveAliasPage } from "../../lib/dashboard-format";
+import { expiryLabel, forwardRate, scrambleFrame, aliasQuery, resolveAliasPage, hasAnyAlias } from "../../lib/dashboard-format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -569,8 +569,7 @@ export default function DashboardPage() {
   const freshIds = useMemo(() => new Set(fresh.map((row) => row.alias?.id).filter(Boolean)), [fresh]);
   const rows = view.rows.filter((alias) => !freshIds.has(alias.id));
   const freshShown = page === 1 ? fresh : [];
-  // Rows still being created are not in the server's count yet.
-  const total = summary.count + fresh.filter((row) => !row.alias).length;
+  const anyAlias = hasAnyAlias(summary.count, fresh);
 
   async function handleToggle(alias) {
     try {
@@ -715,7 +714,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {loadFailed && total === 0 ? null : total === 0 ? (
+      {loadFailed && !anyAlias ? null : !anyAlias ? (
         <div className="text-center px-6 py-20 border border-border rounded-xl bg-card">
           <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center mx-auto mb-4">
             <MailIcon className="w-6 h-6 text-muted-foreground" />

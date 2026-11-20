@@ -163,3 +163,15 @@ test("syncing after checkout and opening the portal use their own routes", async
   assert.equal(await api.openBillingPortal(), "https://test.portal.dodo/cus_1");
   assert.match(lastRequest.url, /\/api\/billing\/portal$/);
 });
+
+test("asking for the confirmation mail again goes to Better Auth with the page that signs you in", async () => {
+  respond(200, { status: true });
+  await api.resendConfirmation("a@example.com");
+  assert.match(lastRequest.url, /\/api\/auth\/send-verification-email$/);
+  assert.equal(lastRequest.method, "POST");
+  assert.deepEqual(lastRequest.body, {
+    email: "a@example.com",
+    callbackURL: "https://www.ghstmail.test/auth/complete",
+  });
+  assert.equal(lastRequest.headers.Authorization, undefined);
+});
