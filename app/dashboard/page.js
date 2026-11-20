@@ -309,7 +309,7 @@ function AliasRow({ alias, fresh, burning, now, copied, onCopy, onToggle, onDele
   return (
     <li
       ref={row}
-      className="grid border-t border-border first:border-t-0 transition-[grid-template-rows] duration-300 ease-out"
+      className={`grid border-t first:border-t-0 transition-[grid-template-rows] duration-300 ease-out ${open ? "border-border" : "border-transparent -mt-px"}`}
       style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
     >
       <div className={`burn-row min-h-0 overflow-hidden ${burning ? "is-burning" : ""}`}>
@@ -474,9 +474,11 @@ export default function DashboardPage() {
   askRef.current = ask;
   const latest = useRef(0);
 
-  const loadAliases = useCallback(async () => {
+  // `quiet` is for reloads that follow something the page already showed
+  // happening (a burn, a toggle, a new row): dimming the table then reads as a flicker.
+  const loadAliases = useCallback(async ({ quiet = false } = {}) => {
     const mine = ++latest.current;
-    setFetching(true);
+    if (!quiet) setFetching(true);
     try {
       const response = await api.getAliases(aliasQuery(askRef.current));
       // A newer request has gone out since; its answer is the one to show.
@@ -541,7 +543,7 @@ export default function DashboardPage() {
     (key) => {
       setFresh((rows) => rows.map((row) => (row.key === key ? { ...row, status: "done" } : row)));
       generating.current = false;
-      loadAliases();
+      loadAliases({ quiet: true });
     },
     [loadAliases]
   );
@@ -575,7 +577,7 @@ export default function DashboardPage() {
     try {
       const updated = await api.updateAlias(alias.id, { is_active: !alias.is_active });
       setFresh((list) => list.map((row) => (row.alias?.id === alias.id ? { ...row, alias: updated.alias } : row)));
-      await loadAliases();
+      await loadAliases({ quiet: true });
     } catch (err) {
       setError(err.message);
     }
@@ -598,7 +600,7 @@ export default function DashboardPage() {
         new Promise((resolve) => setTimeout(resolve, calm ? 0 : BURN_MS + CLOSE_MS)),
       ]);
       setFresh((rows) => rows.filter((row) => row.alias?.id !== id));
-      await loadAliases();
+      await loadAliases({ quiet: true });
     } catch (err) {
       setError(err.message);
     }
@@ -658,7 +660,7 @@ export default function DashboardPage() {
         <div role="alert" className="mb-6 border border-destructive/40 bg-destructive/10 rounded-xl px-4 py-3 text-sm text-destructive flex items-center justify-between gap-4">
           <span>{error}</span>
           {loadFailed && (
-            <Button variant="outline" size="sm" onClick={loadAliases}>
+            <Button variant="outline" size="sm" onClick={() => loadAliases()}>
               Try again
             </Button>
           )}
@@ -859,7 +861,7 @@ export default function DashboardPage() {
       <CreateModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        onCreated={loadAliases}
+        onCreated={() => loadAliases({ quiet: true })}
       />
     </>
   );
